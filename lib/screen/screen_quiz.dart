@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // 추가: SystemChrome
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_result.dart';
@@ -21,30 +22,41 @@ class _QuizScreenState extends State<QuizScreen> {
   SwiperController _controller = SwiperController(); // Swiper 컨트롤러
 
   @override
+  void initState() {
+    super.initState();
+    // 상태 표시줄 스타일 설정
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.transparent, // 상태 표시줄 색상을 투명으로
+      statusBarIconBrightness: Brightness.dark, // 아이콘 밝기 조정
+    ));
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     double width = screenSize.width;
     double height = screenSize.height;
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Image.asset(
-            'images/logo.png', // Path to 'logo.png' in assets
-            width: 150, // Adjust width as needed
-          ),
-          backgroundColor: Colors.white, // Change AppBar background to white
-          centerTitle: true,
-          elevation: 0, // Optional: remove shadow
-          toolbarHeight: 100,
-          automaticallyImplyLeading: false, // 뒤로가기 버튼 숨기기
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Image.asset(
+          'images/logo.png', // Path to 'logo.png' in assets
+          width: 150, // Adjust width as needed
         ),
-        body: Center(
+        backgroundColor: Colors.white, // Change AppBar background to white
+        centerTitle: true,
+        elevation: 0, // Optional: remove shadow
+        toolbarHeight: 100,
+        automaticallyImplyLeading: false, // 뒤로가기 버튼 숨기기
+      ),
+      body: SafeArea(
+        child: Center(
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.deepPurple),
+              color: Colors.transparent, // Container 배경을 투명으로 설정
             ),
             width: width * 0.85,
             height: height * 0.5,
