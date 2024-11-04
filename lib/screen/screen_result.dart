@@ -1,40 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_home.dart';
+import 'package:quiz_app/screen/screen_ranking.dart';
+import 'package:quiz_app/screen/screen_my_page.dart';
 
-class ResultScreen extends StatelessWidget {
+class ResultScreen extends StatefulWidget {
   final List<int> answers;
   final List<Quiz> quizs;
 
   ResultScreen({required this.answers, required this.quizs});
 
   @override
-  Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-    double width = screenSize.width;
+  _ResultScreenState createState() => _ResultScreenState();
+}
 
+class _ResultScreenState extends State<ResultScreen> {
+  int _selectedIndex = 0;
+
+  // Initialize screens with result content.
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initializing screens without using MediaQuery
+    _screens = [
+      HomeScreen(), // 홈 화면
+      RankingScreen(), // 랭킹 화면
+      MyPageScreen(), // 마이페이지 화면
+    ];
+  }
+
+  // 결과 내용을 빌드하는 메소드
+  Widget _buildResultContent() {
     int score = 0;
-    for (int i = 0; i < quizs.length; i++) {
-      if (quizs[i].answer == answers[i]) {
+    for (int i = 0; i < widget.quizs.length; i++) {
+      if (widget.quizs[i].answer == widget.answers[i]) {
         score += 1;
       }
     }
 
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Colors.white, // Set background color to white
-        appBar: AppBar(
-          title: Image.asset(
-            'images/logo.png', // Path to 'logo.png' in assets
-            width: 150, // Adjust width as needed
-          ),
-          backgroundColor: Colors.white, // Change AppBar background to white
-          centerTitle: true,
-          elevation: 0, // Remove shadow
-          automaticallyImplyLeading: false, // Hide back button
-        ),
-        body: Center(
+    return Builder(
+      builder: (context) {
+        // 여기서 MediaQuery에 접근합니다.
+        Size screenSize = MediaQuery.of(context).size;
+        double width = screenSize.width;
+
+        return Center(
           child: SingleChildScrollView(
             child: Container(
               decoration: BoxDecoration(
@@ -43,7 +55,7 @@ class ResultScreen extends StatelessWidget {
                 color: Colors.deepPurple,
               ),
               width: width * 0.85,
-              padding: EdgeInsets.symmetric(vertical: 20), // Add padding
+              padding: EdgeInsets.symmetric(vertical: 20),
               child: Column(
                 children: <Widget>[
                   Container(
@@ -53,9 +65,9 @@ class ResultScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                     width: width * 0.73,
-                    padding: EdgeInsets.symmetric(vertical: 20), // Add padding
+                    padding: EdgeInsets.symmetric(vertical: 20),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min, // Set to minimum size
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Text(
                           '수고하셨습니다!',
@@ -72,7 +84,7 @@ class ResultScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '$score/${quizs.length}',
+                          '$score/${widget.quizs.length}',
                           style: TextStyle(
                             fontSize: width * 0.21,
                             fontWeight: FontWeight.bold,
@@ -82,7 +94,7 @@ class ResultScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20), // Add space between button and score
+                  SizedBox(height: 20),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -93,10 +105,11 @@ class ResultScreen extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                            return HomeScreen();
-                          }));
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                            (Route<dynamic> route) => false,
+                      );
                     },
                     child: Text('홈으로 돌아가기'),
                   ),
@@ -104,6 +117,52 @@ class ResultScreen extends StatelessWidget {
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Image.asset(
+            'images/logo.png',
+            width: 150,
+          ),
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          elevation: 0,
+          toolbarHeight: 100,
+          automaticallyImplyLeading: false,
+        ),
+        body: _selectedIndex == 0
+            ? _buildResultContent() // 결과 화면 표시
+            : _screens[_selectedIndex], // 현재 선택된 화면 표시
+        bottomNavigationBar: BottomNavigationBar(
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+            BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '랭킹'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.deepPurple,
+          unselectedItemColor: Colors.grey,
+          backgroundColor: Colors.white,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index; // 선택된 인덱스 업데이트
+            });
+          },
         ),
       ),
     );
