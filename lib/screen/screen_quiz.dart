@@ -48,6 +48,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _nextQuestion() {
+    // 현재 문제의 정답을 확인하여 다음 문제로 이동
     if (_currentIndex < widget.quizs.length - 1) {
       setState(() {
         _answerState = [false, false, false, false]; // 선택 상태 초기화
@@ -57,6 +58,7 @@ class _QuizScreenState extends State<QuizScreen> {
       });
     } else {
       // 결과 화면으로 이동
+      _timer.cancel(); // 타이머 취소
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -216,6 +218,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   ),
                   onPressed: _answers[_currentIndex] == -1 ? null : () {
                     if (_currentIndex == widget.quizs.length - 1) {
+                      _timer.cancel(); // 결과 화면으로 넘어가기 전에 타이머 취소
                       Navigator.push(
                         context,
                         MaterialPageRoute(
