@@ -1,10 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // 추가: SystemChrome
+import 'package:flutter/services.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_result.dart';
 import 'package:quiz_app/widget/widget_candidate.dart';
+import 'dart:async'; // 타이머를 위해 추가
 
 class QuizScreen extends StatefulWidget {
   final List<Quiz> quizs;
@@ -20,15 +21,58 @@ class _QuizScreenState extends State<QuizScreen> {
   List<bool> _answerState = [false, false, false, false]; // 각 선택지의 선택 상태
   int _currentIndex = 0; // 현재 문제 인덱스
   SwiperController _controller = SwiperController(); // Swiper 컨트롤러
+  int _remainingTime = 20; // 남은 시간
+  late Timer _timer; // 타이머
 
   @override
   void initState() {
     super.initState();
     // 상태 표시줄 스타일 설정
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.transparent, // 상태 표시줄 색상을 투명으로
-      statusBarIconBrightness: Brightness.dark, // 아이콘 밝기 조정
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
     ));
+    _startTimer(); // 타이머 시작
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+        });
+      } else {
+        _nextQuestion(); // 시간이 다 되면 다음 문제로 넘어감
+      }
+    });
+  }
+
+  void _nextQuestion() {
+    if (_currentIndex < widget.quizs.length - 1) {
+      setState(() {
+        _answerState = [false, false, false, false]; // 선택 상태 초기화
+        _currentIndex += 1; // 다음 문제로 이동
+        _controller.next(); // Swiper의 다음 페이지로 이동
+        _remainingTime = 20; // 남은 시간 초기화
+      });
+    } else {
+      // 결과 화면으로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResultScreen(
+            answers: _answers,
+            quizs: widget.quizs,
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // 타이머 정리
+    super.dispose();
   }
 
   @override
@@ -42,33 +86,64 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: Image.asset(
           'images/logo.png', // Path to 'logo.png' in assets
-          width: 150, // Adjust width as needed
+          width: 150,
         ),
-        backgroundColor: Colors.white, // Change AppBar background to white
+        backgroundColor: Colors.white,
         centerTitle: true,
-        elevation: 0, // Optional: remove shadow
+        elevation: 0,
         toolbarHeight: 100,
-        automaticallyImplyLeading: false, // 뒤로가기 버튼 숨기기
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.deepPurple),
-              color: Colors.transparent, // Container 배경을 투명으로 설정
-            ),
-            width: width * 0.85,
-            height: height * 0.5,
-            child: Swiper(
-              controller: _controller,
-              physics: NeverScrollableScrollPhysics(),
-              loop: false,
-              itemCount: widget.quizs.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _buildQuizCard(widget.quizs[index], width, height);
-              },
-            ),
+          child: Column(
+            children: [
+              // 타이머 바 표시
+              Container(
+                width: width * 0.85,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Stack(
+                  children: [
+                    Container(
+                      width: (width * 0.85) * (_remainingTime / 20),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        '남은 시간: $_remainingTime 초',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.deepPurple),
+                  color: Colors.transparent,
+                ),
+                width: width * 0.85,
+                height: height * 0.5,
+                child: Swiper(
+                  controller: _controller,
+                  physics: NeverScrollableScrollPhysics(),
+                  loop: false,
+                  itemCount: widget.quizs.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildQuizCard(widget.quizs[index], width, height);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -127,16 +202,16 @@ class _QuizScreenState extends State<QuizScreen> {
                   child: Text(
                     _currentIndex == widget.quizs.length - 1 ? '결과보기' : 'NEXT',
                     style: TextStyle(
-                      fontSize: width * 0.08,  // 글자 크기를 0.08로 설정
-                      fontWeight: FontWeight.bold,  // 텍스트를 두껍게
+                      fontSize: width * 0.08,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.deepPurple,  // 텍스트 색상 설정
-                    minimumSize: Size(width * 0.7, height * 0.08),  // 버튼 크기 설정
+                    backgroundColor: Colors.deepPurple,
+                    minimumSize: Size(width * 0.7, height * 0.08),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),  // 버튼 모서리 둥글게
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: _answers[_currentIndex] == -1 ? null : () {
@@ -151,11 +226,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         ),
                       );
                     } else {
-                      setState(() {
-                        _answerState = [false, false, false, false];  // 선택 상태 초기화
-                        _currentIndex += 1;  // 다음 문제로 이동
-                        _controller.next();  // Swiper의 다음 페이지로 이동
-                      });
+                      _nextQuestion(); // 다음 문제로 이동
                     }
                   },
                 ),
