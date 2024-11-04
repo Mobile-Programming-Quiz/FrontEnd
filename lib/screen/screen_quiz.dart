@@ -6,7 +6,8 @@ import 'package:quiz_app/screen/screen_result.dart';
 import 'package:quiz_app/widget/widget_candidate.dart';
 
 class QuizScreen extends StatefulWidget {
-  List<Quiz> quizs;
+  final List<Quiz> quizs;
+
   QuizScreen({required this.quizs});
 
   @override
@@ -14,20 +15,31 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
-  List<int> _answers = [-1, -1, -1];
-  List<bool> _answerState = [false, false, false, false];
-  int _currentIndex = 0;
-  SwiperController _controller = SwiperController();
-
+  List<int> _answers = [-1, -1, -1]; // 현재 답변 저장
+  List<bool> _answerState = [false, false, false, false]; // 각 선택지의 선택 상태
+  int _currentIndex = 0; // 현재 문제 인덱스
+  SwiperController _controller = SwiperController(); // Swiper 컨트롤러
 
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     double width = screenSize.width;
     double height = screenSize.height;
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Image.asset(
+            'images/logo.png', // Path to 'logo.png' in assets
+            width: 150, // Adjust width as needed
+          ),
+          backgroundColor: Colors.white, // Change AppBar background to white
+          centerTitle: true,
+          elevation: 0, // Optional: remove shadow
+          toolbarHeight: 100,
+          automaticallyImplyLeading: false, // 뒤로가기 버튼 숨기기
+        ),
         body: Center(
           child: Container(
             decoration: BoxDecoration(
@@ -60,7 +72,7 @@ class _QuizScreenState extends State<QuizScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget> [
+        children: <Widget>[
           Container(
             padding: EdgeInsets.fromLTRB(0, width * 0.024, 0, width * 0.024),
             child: Text(
@@ -85,9 +97,10 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
           ),
           Expanded(
-              child: Container(),
+            child: Container(),
           ),
-          Column(children:_buildCandidates(width, quiz),
+          Column(
+            children: _buildCandidates(width, quiz),
           ),
           Container(
             padding: EdgeInsets.all(width * 0.024),
@@ -98,14 +111,18 @@ class _QuizScreenState extends State<QuizScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: ElevatedButton(  // RaisedButton 대신 ElevatedButton 사용
-                  child: _currentIndex == widget.quizs.length - 1
-                      ? Text('결과보기')
-                      : Text('다음문제'),
+                child: ElevatedButton(
+                  child: Text(
+                    _currentIndex == widget.quizs.length - 1 ? '결과보기' : 'NEXT',
+                    style: TextStyle(
+                      fontSize: width * 0.08,  // 글자 크기를 0.08로 설정
+                      fontWeight: FontWeight.bold,  // 텍스트를 두껍게
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.deepPurple,  // 텍스트 색상 설정
-                    minimumSize: Size(width * 0.5, height * 0.05),  // 버튼 크기 설정
+                    minimumSize: Size(width * 0.7, height * 0.08),  // 버튼 크기 설정
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),  // 버튼 모서리 둥글게
                     ),
@@ -113,13 +130,13 @@ class _QuizScreenState extends State<QuizScreen> {
                   onPressed: _answers[_currentIndex] == -1 ? null : () {
                     if (_currentIndex == widget.quizs.length - 1) {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ResultScreen(
-                                  answers: _answers,
-                                  quizs: widget.quizs,
-                              ),
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ResultScreen(
+                            answers: _answers,
+                            quizs: widget.quizs,
                           ),
+                        ),
                       );
                     } else {
                       setState(() {
@@ -130,10 +147,9 @@ class _QuizScreenState extends State<QuizScreen> {
                     }
                   },
                 ),
-
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -141,28 +157,30 @@ class _QuizScreenState extends State<QuizScreen> {
 
   List<Widget> _buildCandidates(double width, Quiz quiz) {
     List<Widget> _children = [];
-    for (int i = 0; i<4;i++){
+    for (int i = 0; i < 4; i++) {
       _children.add(
-        CandWidget(index: i, text: quiz.candidates[i], width: width, answerState: _answerState[i],
-          tap: (){
+        CandWidget(
+          index: i,
+          text: quiz.candidates[i],
+          width: width,
+          answerState: _answerState[i],
+          tap: () {
             setState(() {
-              for(int j = 0; j<4; j++){
-                  if(j==i){
-                    _answerState[j] = true;
-                    _answers[_currentIndex] = j;
-                    // print(_answers[_currentIndex]);
-                    // print(width);
-                  }
-                  else{
-                    _answerState[j] = false;
-                  }
+              for (int j = 0; j < 4; j++) {
+                if (j == i) {
+                  _answerState[j] = true;
+                  _answers[_currentIndex] = j;
+                } else {
+                  _answerState[j] = false;
+                }
               }
             });
           },
         ),
       );
       _children.add(
-        Padding(padding: EdgeInsets.all(width * 0.024),
+        Padding(
+          padding: EdgeInsets.all(width * 0.024),
         ),
       );
     }

@@ -23,14 +23,16 @@ class ResultScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        backgroundColor: Colors.white, // Set background color to white
         appBar: AppBar(
-          title: Text(
-            'My Quiz APP',
-            style: TextStyle(color: Colors.white),
+          title: Image.asset(
+            'images/logo.png', // Path to 'logo.png' in assets
+            width: 150, // Adjust width as needed
           ),
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.white, // Change AppBar background to white
           centerTitle: true,
-          leading: Container(),
+          elevation: 0, // Remove shadow
+          automaticallyImplyLeading: false, // Hide back button
         ),
         body: Center(
           child: SingleChildScrollView(
@@ -41,7 +43,7 @@ class ResultScreen extends StatelessWidget {
                 color: Colors.deepPurple,
               ),
               width: width * 0.85,
-              padding: EdgeInsets.symmetric(vertical: 20), // 패딩 추가
+              padding: EdgeInsets.symmetric(vertical: 20), // Add padding
               child: Column(
                 children: <Widget>[
                   Container(
@@ -51,9 +53,9 @@ class ResultScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                     width: width * 0.73,
-                    padding: EdgeInsets.symmetric(vertical: 20), // 패딩 추가
+                    padding: EdgeInsets.symmetric(vertical: 20), // Add padding
                     child: Column(
-                      mainAxisSize: MainAxisSize.min, // 최소 크기로 설정
+                      mainAxisSize: MainAxisSize.min, // Set to minimum size
                       children: <Widget>[
                         Text(
                           '수고하셨습니다!',
@@ -80,7 +82,7 @@ class ResultScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20), // 버튼과 점수 사이의 공간 추가
+                  SizedBox(height: 20), // Add space between button and score
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
