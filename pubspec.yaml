@@ -64,6 +64,8 @@ flutter:
   assets:
    - images/quiz.jpeg
    - images/logo.png
+   - images/correct.json
+   - images/wrong.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
