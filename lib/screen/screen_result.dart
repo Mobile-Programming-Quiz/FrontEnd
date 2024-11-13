@@ -166,7 +166,6 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ),
                 ),
-
                 SizedBox(width: 10),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -178,7 +177,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ),
                   onPressed: () {
-                    // 공유 버튼 동작 추가
+                    _showShareDialog(context);
                   },
                   child: Icon(Icons.share),
                 ),
@@ -235,6 +234,133 @@ class _ResultScreenState extends State<ResultScreen> {
         backgroundColor: Colors.white,
         onTap: _onItemTapped,
       ),
+    );
+  }
+
+  void _showShareDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (BuildContext buildContext, Animation animation, Animation secondaryAnimation) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Material(
+            color: Colors.transparent, // 배경을 투명하게 설정
+            child: Container(
+              padding: EdgeInsets.all(20),
+              margin: EdgeInsets.only(bottom: 20), // 하단에서 약간 띄우기 위한 마진 추가
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25), // 모든 모서리를 둥글게 설정
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Center(
+                        child: Text(
+                          'Share',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 모달 창 닫기
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildShareButton(
+                        iconPath: 'images/kakao_icon.png', // 카카오톡 아이콘 이미지 경로
+                        label: '카카오톡',
+                        onPressed: () {
+                          // 카카오톡 공유 로직
+                        },
+                      ),
+                      _buildShareButton(
+                        iconPath: 'images/instagram_icon.png', // 인스타그램 아이콘 이미지 경로
+                        label: '인스타그램',
+                        onPressed: () {
+                          // 인스타그램 공유 로직
+                        },
+                      ),
+                      _buildShareButton(
+                        iconPath: 'images/save_icon.png', // 저장 아이콘 이미지 경로
+                        label: '저장',
+                        onPressed: () {
+                          // 저장 로직
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset(0, 1),
+            end: Offset(0, 0),
+          ).animate(animation),
+          child: child,
+        );
+      },
+    );
+  }
+
+
+
+  Widget _buildShareButton({required String iconPath, required String label, required VoidCallback onPressed}) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onPressed,
+          child: Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.grey[200],
+            ),
+            child: Center(
+              child: Image.asset(
+                iconPath,
+                width: 40,
+                height: 40,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14),
+        ),
+      ],
     );
   }
 }
