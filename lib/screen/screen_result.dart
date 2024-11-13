@@ -17,13 +17,11 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   int _selectedIndex = 0;
 
-  // Initialize screens with result content.
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
-    // Initializing screens without using MediaQuery
     _screens = [
       HomeScreen(), // 홈 화면
       RankingScreen(), // 랭킹 화면
@@ -31,7 +29,6 @@ class _ResultScreenState extends State<ResultScreen> {
     ];
   }
 
-  // 결과 내용을 빌드하는 메소드
   Widget _buildResultContent() {
     int score = 0;
     for (int i = 0; i < widget.quizs.length; i++) {
@@ -40,85 +37,152 @@ class _ResultScreenState extends State<ResultScreen> {
       }
     }
 
-    return Builder(
-      builder: (context) {
-        // 여기서 MediaQuery에 접근합니다.
-        Size screenSize = MediaQuery.of(context).size;
-        double width = screenSize.width;
+    int totalScore = score * 5;
+    int maxScore = widget.quizs.length * 5;
 
-        return Center(
-          child: SingleChildScrollView(
-            child: Container(
+    Size screenSize = MediaQuery.of(context).size;
+    double width = screenSize.width;
+
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.deepPurple),
-                color: Colors.deepPurple,
+                color: Color(0xFF7E3AB5), // 보라색 박스
+                borderRadius: BorderRadius.circular(25),
               ),
               width: width * 0.85,
-              padding: EdgeInsets.symmetric(vertical: 20),
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
               child: Column(
-                children: <Widget>[
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Container(
                     decoration: BoxDecoration(
+                      color: Colors.white, // 흰색 박스 추가
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.deepPurple),
-                      color: Colors.white,
                     ),
-                    width: width * 0.73,
-                    padding: EdgeInsets.symmetric(vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
+                      children: [
                         Text(
-                          '수고하셨습니다!',
+                          'Gomoph님의 점수는',
                           style: TextStyle(
-                            fontSize: width * 0.055,
+                            fontSize: width * 0.06,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
-                        Text(
-                          '당신의 점수는',
-                          style: TextStyle(
-                            fontSize: width * 0.048,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '$score/${widget.quizs.length}',
-                          style: TextStyle(
-                            fontSize: width * 0.21,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '$totalScore',
+                                style: TextStyle(
+                                  fontSize: width * 0.1,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF00DD16), // 점수 색상
+                                ),
+                              ),
+                              TextSpan(
+                                text: '/$maxScore',
+                                style: TextStyle(
+                                  fontSize: width * 0.1,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFA8A8A8), // 총 점수 색상
+                                ),
+                              ),
+                              TextSpan(
+                                text: '점 입니다',
+                                style: TextStyle(
+                                  fontSize: width * 0.06,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      minimumSize: Size(width * 0.73, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                  Text(
+                    '내일 주제 투표하기!',
+                    style: TextStyle(
+                      fontSize: width * 0.05,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                            (Route<dynamic> route) => false,
-                      );
-                    },
-                    child: Text('홈으로 돌아가기'),
+                  ),
+                  SizedBox(height: 15),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      for (int i = 1; i <= 4; i++)
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF954FCC), // 버튼 배경색
+                            foregroundColor: Colors.white, // 텍스트 색상
+                            minimumSize: Size(width * 0.35, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(45),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: Text('주제$i'),
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        );
-      },
+            SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF7E3AB5),
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(width * 0.4, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(45),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/ranking');
+                  },
+                  child: Text('랭킹 보러 가기',
+                    style: TextStyle(
+                      fontSize: width * 0.05,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF7E3AB5),
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(width * 0.2, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(45),
+                    ),
+                  ),
+                  onPressed: () {
+                    // 공유 버튼 동작 추가
+                  },
+                  child: Icon(Icons.share),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -130,40 +194,33 @@ class _ResultScreenState extends State<ResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Image.asset(
+          'images/logo.png',
+          width: 150,
+        ),
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Image.asset(
-            'images/logo.png',
-            width: 150,
-          ),
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          elevation: 0,
-          toolbarHeight: 100,
-          automaticallyImplyLeading: false,
-        ),
-        body: _selectedIndex == 0
-            ? _buildResultContent() // 결과 화면 표시
-            : _screens[_selectedIndex], // 현재 선택된 화면 표시
-        bottomNavigationBar: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-            BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '랭킹'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.deepPurple,
-          unselectedItemColor: Colors.grey,
-          backgroundColor: Colors.white,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index; // 선택된 인덱스 업데이트
-            });
-          },
-        ),
+        centerTitle: true,
+        elevation: 0,
+        toolbarHeight: 100,
+        automaticallyImplyLeading: false,
+      ),
+      body: _selectedIndex == 0
+          ? _buildResultContent()
+          : _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '랭킹'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Color(0xFF7E3AB5),
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        onTap: _onItemTapped,
       ),
     );
   }
