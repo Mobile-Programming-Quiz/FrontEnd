@@ -115,7 +115,7 @@ class HomeScreenContent extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(width * 0.7, height * 0.08),
                   backgroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 child: Text(
                   'START',

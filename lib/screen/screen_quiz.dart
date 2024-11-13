@@ -4,8 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_result.dart';
-import 'package:quiz_app/widget/widget_candidate.dart';
-import 'dart:async'; // 타이머를 위해 추가
+import 'dart:async';
 
 class QuizScreen extends StatefulWidget {
   final List<Quiz> quizs;
@@ -18,8 +17,9 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   List<int> _answers = [-1, -1, -1]; // 현재 답변 저장
-  List<bool> _answerState = [false, false, false, false]; // 각 선택지의 선택 상태
+  List<Color> _answerColors = [Colors.transparent, Colors.transparent, Colors.transparent, Colors.transparent]; // 각 선택지의 색상
   int _currentIndex = 0; // 현재 문제 인덱스
+  int _selectedIndex = -1; // 선택된 선지의 인덱스
   SwiperController _controller = SwiperController(); // Swiper 컨트롤러
   int _remainingTime = 20; // 남은 시간
   late Timer _timer; // 타이머
@@ -27,7 +27,6 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    // 상태 표시줄 스타일 설정
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
@@ -48,16 +47,15 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _nextQuestion() {
-    // 현재 문제의 정답을 확인하여 다음 문제로 이동
     if (_currentIndex < widget.quizs.length - 1) {
       setState(() {
-        _answerState = [false, false, false, false]; // 선택 상태 초기화
+        _answerColors = [Colors.transparent, Colors.transparent, Colors.transparent, Colors.transparent]; // 선택지 색상 초기화
+        _selectedIndex = -1; // 선택 초기화
         _currentIndex += 1; // 다음 문제로 이동
         _controller.next(); // Swiper의 다음 페이지로 이동
         _remainingTime = 20; // 남은 시간 초기화
       });
     } else {
-      // 결과 화면으로 이동
       _timer.cancel(); // 타이머 취소
       Navigator.push(
         context,
@@ -87,7 +85,7 @@ class _QuizScreenState extends State<QuizScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Image.asset(
-          'images/logo.png', // Path to 'logo.png' in assets
+          'images/logo.png',
           width: 150,
         ),
         backgroundColor: Colors.white,
@@ -100,13 +98,12 @@ class _QuizScreenState extends State<QuizScreen> {
         child: Center(
           child: Column(
             children: [
-              // 타이머 바 표시
               Container(
                 width: width * 0.85,
                 height: 20,
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Stack(
                   children: [
@@ -114,7 +111,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       width: (width * 0.85) * (_remainingTime / 20),
                       decoration: BoxDecoration(
                         color: Colors.deepPurple,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                     Center(
@@ -194,31 +191,39 @@ class _QuizScreenState extends State<QuizScreen> {
           Container(
             padding: EdgeInsets.all(width * 0.024),
             child: Center(
-              child: ButtonTheme(
-                minWidth: width * 0.5,
-                height: height * 0.05,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              child: ElevatedButton(
+                child: Text(
+                  _currentIndex == widget.quizs.length - 1 ? '결과보기' : 'NEXT',
+                  style: TextStyle(
+                    fontSize: width * 0.08,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: ElevatedButton(
-                  child: Text(
-                    _currentIndex == widget.quizs.length - 1 ? '결과보기' : 'NEXT',
-                    style: TextStyle(
-                      fontSize: width * 0.08,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.deepPurple,
+                  minimumSize: Size(width * 0.7, height * 0.08),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.deepPurple,
-                    minimumSize: Size(width * 0.7, height * 0.08),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: _answers[_currentIndex] == -1 ? null : () {
+                ),
+                onPressed: _answers[_currentIndex] == -1 ? null : () {
+                  setState(() {
+                    // 정답 확인 및 색상 업데이트
+                    for (int i = 0; i < 4; i++) {
+                      if (i == widget.quizs[_currentIndex].answer) {
+                        _answerColors[i] = Colors.green; // 정답 초록색
+                      } else if (i == _selectedIndex) {
+                        _answerColors[i] = Colors.red; // 선택된 오답 빨간색
+                      } else {
+                        _answerColors[i] = Colors.transparent; // 나머지는 초기화
+                      }
+                    }
+                  });
+
+                  Future.delayed(Duration(seconds: 1), () {
                     if (_currentIndex == widget.quizs.length - 1) {
-                      _timer.cancel(); // 결과 화면으로 넘어가기 전에 타이머 취소
+                      _timer.cancel();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -229,10 +234,10 @@ class _QuizScreenState extends State<QuizScreen> {
                         ),
                       );
                     } else {
-                      _nextQuestion(); // 다음 문제로 이동
+                      _nextQuestion();
                     }
-                  },
-                ),
+                  });
+                },
               ),
             ),
           ),
@@ -245,31 +250,42 @@ class _QuizScreenState extends State<QuizScreen> {
     List<Widget> _children = [];
     for (int i = 0; i < 4; i++) {
       _children.add(
-        CandWidget(
-          index: i,
-          text: quiz.candidates[i],
-          width: width,
-          answerState: _answerState[i],
-          tap: () {
+        GestureDetector(
+          onTap: () {
             setState(() {
+              _selectedIndex = i; // 선택된 인덱스 업데이트
+              _answers[_currentIndex] = i; // 선택된 답 저장
+
+              // 선택된 상태 배경색 업데이트
               for (int j = 0; j < 4; j++) {
-                if (j == i) {
-                  _answerState[j] = true;
-                  _answers[_currentIndex] = j;
-                } else {
-                  _answerState[j] = false;
-                }
+                _answerColors[j] = j == i ? Colors.deepPurple : Colors.transparent;
               }
             });
           },
-        ),
-      );
-      _children.add(
-        Padding(
-          padding: EdgeInsets.all(width * 0.024),
+          child: Container(
+            width: width * 0.7, // NEXT 버튼과 동일한 너비
+            padding: EdgeInsets.symmetric(vertical: width * 0.02),
+            margin: EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: _answerColors[i], // 선택지의 배경색
+              borderRadius: BorderRadius.circular(20), // 테두리 라운딩
+              border: Border.all(color: Colors.deepPurple, width: 2), // 테두리 색상 및 두께
+            ),
+            child: Center(
+              child: Text(
+                quiz.candidates[i],
+                style: TextStyle(
+                  fontSize: width * 0.05,
+                  fontWeight: FontWeight.bold,
+                  color: _answerColors[i] == Colors.transparent ? Colors.black : Colors.white, // 텍스트 색상
+                ),
+              ),
+            ),
+          ),
         ),
       );
     }
     return _children;
   }
+
 }
