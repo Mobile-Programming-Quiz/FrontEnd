@@ -385,10 +385,9 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
-import 'package:quiz_app/screen/screen_result.dart';
 import 'package:lottie/lottie.dart';
-
 import '../model/model_quiz.dart';
+import 'screen_result.dart';
 
 class QuizScreen extends StatefulWidget {
   final List<Quiz> quizs;
@@ -507,9 +506,10 @@ class _QuizScreenState extends State<QuizScreen> {
       ),
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            SizedBox(height: 20),
             // 남은 시간 상태바
             Container(
               width: width * 0.85,
@@ -539,8 +539,8 @@ class _QuizScreenState extends State<QuizScreen> {
             SizedBox(height: 20),
 
             // 문제 및 선택지
-            Expanded(
-              flex: 6,
+            SizedBox(
+              height: screenSize.height * 0.6,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -571,47 +571,6 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                 ],
               ),
-            ),
-            SizedBox(height: 10),
-
-            // NEXT 버튼
-            ElevatedButton(
-              child: Text(
-                _currentIndex == widget.quizs.length - 1 ? '결과보기' : 'NEXT',
-                style: TextStyle(
-                  fontSize: width * 0.06,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.deepPurple,
-                minimumSize: Size(width * 0.7, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              onPressed: _answers[_currentIndex] == -1
-                  ? null
-                  : () {
-                setState(() {
-                  for (int i = 0; i < 4; i++) {
-                    if (i == widget.quizs[_currentIndex].answer) {
-                      _answerColors[i] = Colors.green;
-                    } else if (i == _selectedIndex) {
-                      _answerColors[i] = Colors.red;
-                    } else {
-                      _answerColors[i] = Colors.transparent;
-                    }
-                  }
-                });
-
-                bool isCorrect = _answers[_currentIndex] ==
-                    widget.quizs[_currentIndex].answer;
-                String fileName = isCorrect ? "correct.json" : "wrong.json";
-
-                _showAnimation(fileName);
-              },
             ),
             SizedBox(height: 10),
 
@@ -659,7 +618,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Widget _buildQuizCard(Quiz quiz, double width) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
@@ -681,6 +640,46 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
         SizedBox(height: 20),
         ..._buildCandidates(width, quiz),
+        SizedBox(height: 40),
+        // NEXT 버튼
+        ElevatedButton(
+          child: Text(
+            _currentIndex == widget.quizs.length - 1 ? '결과보기' : 'NEXT',
+            style: TextStyle(
+              fontSize: width * 0.06,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.deepPurple,
+            minimumSize: Size(width * 0.7, 70),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          onPressed: _answers[_currentIndex] == -1
+              ? null
+              : () {
+            setState(() {
+              for (int i = 0; i < 4; i++) {
+                if (i == widget.quizs[_currentIndex].answer) {
+                  _answerColors[i] = Colors.green;
+                } else if (i == _selectedIndex) {
+                  _answerColors[i] = Colors.red;
+                } else {
+                  _answerColors[i] = Colors.transparent;
+                }
+              }
+            });
+
+            bool isCorrect = _answers[_currentIndex] ==
+                widget.quizs[_currentIndex].answer;
+            String fileName = isCorrect ? "correct.json" : "wrong.json";
+
+            _showAnimation(fileName);
+          },
+        ),
       ],
     );
   }
@@ -722,3 +721,4 @@ class _QuizScreenState extends State<QuizScreen> {
     });
   }
 }
+
