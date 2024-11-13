@@ -266,21 +266,27 @@ class _ResultScreenState extends State<ResultScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Text(
-                        'Share',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      Center(
+                        child: Text(
+                          'Share',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.of(context).pop(); // 모달 창 닫기
-                        },
+                      Positioned(
+                        right: 0,
+                        child: IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 모달 창 닫기
+                          },
+                        ),
                       ),
                     ],
                   ),
+
                   SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
