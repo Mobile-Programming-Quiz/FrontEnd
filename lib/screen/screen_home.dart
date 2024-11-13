@@ -15,19 +15,22 @@ class _HomeScreenState extends State<HomeScreen> {
   // Define the quiz list.
   List<Quiz> quizs = [
     Quiz.fromMap({
-      'title': 'test',
-      'candidates': ['a', 'b', 'c', 'd'],
-      'answer': 0
+      'title': '첫 번째 문제입니다.',
+      'candidates': ['선택지1', '선택지2', '선택지3', '선택지4'],
+      'answer': 0,
+      'hint': '정답은 첫 번째 선택지입니다.', // 힌트 추가
     }),
     Quiz.fromMap({
-      'title': 'test2',
-      'candidates': ['a', 'b', 'c', 'd'],
-      'answer': 1
+      'title': '두 번째 문제입니다.',
+      'candidates': ['선택지1', '선택지2', '선택지3', '선택지4'],
+      'answer': 1,
+      'hint': '정답은 두 번째 선택지입니다.', // 힌트 추가
     }),
     Quiz.fromMap({
-      'title': 'test3',
-      'candidates': ['a', 'b', 'c', 'd'],
-      'answer': 2
+      'title': '세 번째 문제입니다.',
+      'candidates': ['선택지1', '선택지2', '선택지3', '선택지4'],
+      'answer': 2,
+      'hint': '정답은 세 번째 선택지입니다.', // 힌트 추가
     }),
   ];
 
