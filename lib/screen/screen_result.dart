@@ -201,9 +201,18 @@ class _ResultScreenState extends State<ResultScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Image.asset(
-          'images/logo.png',
-          width: 150,
+        title: GestureDetector(
+          onTap: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+                  (Route<dynamic> route) => false,
+            );
+          },
+          child: Image.asset(
+            'images/logo.png',
+            width: 150,
+          ),
         ),
         backgroundColor: Colors.white,
         centerTitle: true,
