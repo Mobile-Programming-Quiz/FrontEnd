@@ -153,9 +153,12 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/ranking');
+                    setState(() {
+                      _selectedIndex = 1; // 1번 인덱스는 RankingScreen입니다.
+                    });
                   },
-                  child: Text('랭킹 보러 가기',
+                  child: Text(
+                    '랭킹 보러 가기',
                     style: TextStyle(
                       fontSize: width * 0.05,
                       fontWeight: FontWeight.bold,
@@ -163,6 +166,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ),
                 ),
+
                 SizedBox(width: 10),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
