@@ -229,7 +229,7 @@ class _ResultScreenState extends State<ResultScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color(0xFF7E3AB5),
+        selectedItemColor: Colors.deepPurple,
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.white,
         onTap: _onItemTapped,
