@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/screen/screen_home.dart';
+import 'package:quiz_app/screen/screen_subject.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: HomeScreen(),
+      // home: SubjectScreen(remainingQuizzes: 5),
     );
   }
 }

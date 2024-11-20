@@ -3,6 +3,7 @@ import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_quiz.dart';
 import 'package:quiz_app/screen/screen_ranking.dart';
 import 'package:quiz_app/screen/screen_my_page.dart';
+import 'package:quiz_app/screen/screen_subject.dart'; // screen_subject 추가
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -113,36 +114,66 @@ class HomeScreenContent extends StatelessWidget {
           Padding(padding: EdgeInsets.all(width * 0.024)),
           Container(
             padding: EdgeInsets.only(bottom: width * 0.036),
-            child: Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(width * 0.7, height * 0.08),
-                  backgroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                child: Text(
-                  'START',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: width * 0.08, // Increase font size here
-                    fontWeight: FontWeight.bold, // Optional: make it bold
+            child: Column(
+              children: [
+                // START 버튼
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(width * 0.7, height * 0.08),
+                    backgroundColor: Colors.deepPurple,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
+                  child: Text(
+                    'START',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: width * 0.08, // Increase font size here
+                      fontWeight: FontWeight.bold, // Optional: make it bold
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WillPopScope(
+                          onWillPop: () async => false, // Prevent back navigation
+                          child: QuizScreen(
+                            quizs: quizs, // Passing quiz list to QuizScreen
+                          ),
+                        ),
+                        fullscreenDialog: true, // 전체 화면 대화 상자로 표시
+                      ),
+                    );
+                  },
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WillPopScope(
-                        onWillPop: () async => false, // Prevent back navigation
-                        child: QuizScreen(
-                          quizs: quizs, // Passing quiz list to QuizScreen
+                const SizedBox(height: 16),
+                // 이전 문제 풀러 가기 버튼
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(width * 0.7, height * 0.04),
+                    backgroundColor: Colors.grey, // 버튼 색상 변경
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                  child: Text(
+                    '안 푼 문제 풀러 가기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: width * 0.06, // 글자 크기 약간 작게 설정
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SubjectScreen(
+                          remainingQuizzes: 5, // 예시로 남은 퀴즈 수 전달
                         ),
                       ),
-                      fullscreenDialog: true, // 전체 화면 대화 상자로 표시
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ],
