@@ -14,6 +14,7 @@ class TotalRankingPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [

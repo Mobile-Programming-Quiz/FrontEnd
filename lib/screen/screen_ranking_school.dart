@@ -38,6 +38,7 @@ class _SchoolRankingPageState extends State<SchoolRankingPage> {
         foregroundColor: const Color(0xFF7E3AB5),
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator()) // 로딩 중일 때 인디케이터 표시
