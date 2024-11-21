@@ -3,7 +3,9 @@ import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_quiz.dart';
 import 'package:quiz_app/screen/screen_ranking.dart';
 import 'package:quiz_app/screen/screen_my_page.dart';
-import 'package:quiz_app/screen/screen_subject.dart'; // screen_subject 추가
+import 'package:quiz_app/screen/screen_subject.dart';
+
+import '../main.dart'; // screen_subject 추가
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -38,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Initialize screens with quiz list.
   late final List<Widget> _screens = [
     HomeScreenContent(quizs: quizs), // Passing quiz list
-    RankingScreen(),
+    RankingPageView(),
     MyPageScreen(),
   ];
 

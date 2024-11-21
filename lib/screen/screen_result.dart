@@ -4,6 +4,8 @@ import 'package:quiz_app/screen/screen_home.dart';
 import 'package:quiz_app/screen/screen_ranking.dart';
 import 'package:quiz_app/screen/screen_my_page.dart';
 
+import '../main.dart';
+
 class ResultScreen extends StatefulWidget {
   final List<int> answers;
   final List<Quiz> quizs;
@@ -24,7 +26,7 @@ class _ResultScreenState extends State<ResultScreen> {
     super.initState();
     _screens = [
       HomeScreen(), // 홈 화면
-      RankingScreen(), // 랭킹 화면
+      RankingPageView(), // 랭킹 화면
       MyPageScreen(), // 마이페이지 화면
     ];
   }

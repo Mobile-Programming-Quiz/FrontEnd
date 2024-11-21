@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/screen/screen_home.dart';
-import 'package:quiz_app/screen/screen_subject.dart';
+import 'package:quiz_app/screen/screen_ranking_school.dart';
+import 'package:quiz_app/screen/screen_ranking_total.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +21,22 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: HomeScreen(),
-      // home: SubjectScreen(remainingQuizzes: 5),
     );
   }
 }
+
+class RankingPageView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PageView(
+        children: const [
+          SchoolRankingPage(), // 학교 랭킹 페이지
+          TotalRankingPage(),  // 전체 랭킹 페이지
+        ],
+      ),
+    );
+  }
+}
+
+
