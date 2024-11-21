@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quiz_app/screen/screen_home.dart';
 import 'package:quiz_app/screen/screen_ranking_school.dart';
 import 'package:quiz_app/screen/screen_ranking_total.dart';
+import 'package:quiz_app/screens/splash.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: HomeScreen(),
+      // home: HomeScreen(),
+      home: const SplashScreen(),
     );
   }
 }
