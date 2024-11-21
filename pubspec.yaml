@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  firebase_core: ^2.14.0
+  firebase_auth: ^4.6.0  # 인증 기능 사용 시
+  cloud_firestore: ^4.17.5 # Firestore 사용 시
+  firebase_database: ^10.0.0 # Realtime Database 사용 시
 
   font_awesome_flutter: ^10.0.0
   # The following adds the Cupertino Icons font to your application.
@@ -65,6 +69,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
    - images/quiz.jpeg
+   - images/logo.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

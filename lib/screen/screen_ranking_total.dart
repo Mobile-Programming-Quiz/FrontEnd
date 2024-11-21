@@ -24,29 +24,32 @@ class TotalRankingPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF9E5FC2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Text(
-                            '${index + 1} ', // 순위 표시
-                            style: const TextStyle(color: Colors.white, fontSize: 20),
+                  child: Center( // 가운데 정렬
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.85, // 가로 길이 줄이기
+                      height: 55,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF9E5FC2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: Text(
+                              '${index + 1} ', // 순위 표시
+                              style: const TextStyle(color: Colors.white, fontSize: 20),
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: index < 10 // 상위 10등까지만 왕관 표시
-                              ? const Icon(FontAwesomeIcons.crown, color: Colors.yellow)
-                              : const SizedBox.shrink(), // 10등 이후는 빈 공간
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: index < 10 // 상위 10등까지만 왕관 표시
+                                ? const Icon(FontAwesomeIcons.crown, color: Colors.yellow)
+                                : const SizedBox.shrink(), // 10등 이후는 빈 공간
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -54,24 +57,6 @@ class TotalRankingPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.grey),
-            label: '홈',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart, color: Color(0xFF7E3AB5)), // 랭킹 선택 시 보라색
-            label: '랭킹',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '마이페이지',
-          ),
-        ],
-        selectedItemColor: const Color(0xFF7E3AB5),
-        unselectedItemColor: Colors.grey,
       ),
     );
   }
