@@ -76,6 +76,7 @@ class SignupPage extends StatelessWidget {
         'birthDate': birthDateController.text,
         'email': email,
         'school': schoolController.text,
+        'score': 0, // score 필드 추가
         'createdAt': FieldValue.serverTimestamp(),
       });
 
