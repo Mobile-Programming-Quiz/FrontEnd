@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^2.14.0
-  firebase_auth: ^4.6.0  # 인증 기능 사용 시
+  firebase_auth: ^4.7.0  # 인증 기능 사용 시
   cloud_firestore: ^4.17.5 # Firestore 사용 시
   firebase_database: ^10.0.0 # Realtime Database 사용 시
   lottie: ^2.2.0

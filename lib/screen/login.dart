@@ -19,14 +19,14 @@ class _LoginPageState extends State<LoginPage> {
     // 로그인 로직 추가
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const LoginPage2()),
+      MaterialPageRoute(builder: (context) => LoginPage2()),
     );
   }
 
   void nav_signup() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SignupPage())
+      MaterialPageRoute(builder: (context) => SignupPage())
     );
   }
 
