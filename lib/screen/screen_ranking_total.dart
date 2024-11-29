@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class TotalRankingPage extends StatelessWidget {
   const TotalRankingPage({super.key});
+
+  Future<List<Map<String, dynamic>>> fetchRankings() async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('user')
+        .orderBy('score', descending: true)
+        .limit(20)
+        .get();
+
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,39 +31,58 @@ class TotalRankingPage extends StatelessWidget {
         children: [
           const Divider(color: Colors.white, thickness: 1),
           Expanded(
-            child: ListView.builder(
-              itemCount: 20, // 순위를 20등까지 확장
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                  child: Center( // 가운데 정렬
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.85, // 가로 길이 줄이기
-                      height: 55,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF9E5FC2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16.0),
-                            child: Text(
-                              '${index + 1} ', // 순위 표시
-                              style: const TextStyle(color: Colors.white, fontSize: 20),
-                            ),
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: fetchRankings(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text('데이터를 불러오는 중 오류가 발생했습니다.'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('랭킹 데이터가 없습니다.'));
+                }
+
+                final rankings = snapshot.data!;
+                return ListView.builder(
+                  itemCount: rankings.length,
+                  itemBuilder: (context, index) {
+                    final user = rankings[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                      child: Center(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          height: 55,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF9E5FC2),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16.0),
-                            child: index < 10 // 상위 10등까지만 왕관 표시
-                                ? const Icon(FontAwesomeIcons.crown, color: Colors.yellow)
-                                : const SizedBox.shrink(), // 10등 이후는 빈 공간
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: Text(
+                                  '${index + 1}', // 순위
+                                  style: const TextStyle(color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                              Text(
+                                '${user['name']} - ${user['score']}점', // 유저 이름과 점수
+                                style: const TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 16.0),
+                                child: index < 10
+                                    ? const Icon(FontAwesomeIcons.crown, color: Colors.yellow)
+                                    : const SizedBox.shrink(),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             ),

@@ -3,6 +3,8 @@ import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_home.dart';
 import 'package:quiz_app/screen/screen_ranking.dart';
 import 'package:quiz_app/screen/screen_my_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../main.dart';
 
@@ -31,6 +33,27 @@ class _ResultScreenState extends State<ResultScreen> {
     ];
   }
 
+  Future<void> updateUserScore(int totalScore) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception("로그인된 사용자가 없습니다.");
+      }
+
+      final userDocRef = FirebaseFirestore.instance.collection('user').doc(user.uid);
+
+      // Firestore의 score를 덮어쓰기
+      await userDocRef.update({
+        'score': totalScore, // 덮어쓰기 방식으로 점수 업데이트
+      });
+
+      print("점수가 성공적으로 저장되었습니다: $totalScore");
+    } catch (e) {
+      print("점수 저장 중 오류 발생: $e");
+    }
+  }
+
+
   Widget _buildResultContent() {
     int score = 0;
     for (int i = 0; i < widget.quizs.length; i++) {
@@ -39,8 +62,11 @@ class _ResultScreenState extends State<ResultScreen> {
       }
     }
 
-    int totalScore = score * 5;
-    int maxScore = widget.quizs.length * 5;
+    int totalScore = score * 10;
+    int maxScore = widget.quizs.length * 10;
+
+    // Firestore에 점수 저장 (덮어쓰기)
+    updateUserScore(totalScore);
 
     Size screenSize = MediaQuery.of(context).size;
     double width = screenSize.width;
