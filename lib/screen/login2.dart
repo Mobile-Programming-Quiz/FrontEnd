@@ -179,7 +179,6 @@
 import 'package:quiz_app/screen/password_page.dart';
 import 'package:flutter/material.dart';
 import 'sign_up.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:quiz_app/screen/screen_home.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Authentication 추가
 
@@ -193,13 +192,6 @@ class LoginPage2 extends StatefulWidget {
 class _LoginPageState extends State<LoginPage2> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Kakao SDK 초기화
-    KakaoSdk.init(nativeAppKey: 'YOUR_KAKAO_NATIVE_APP_KEY'); // 실제 키로 대체하세요
-  }
 
   // Firebase를 이용한 로그인 기능 추가
   Future<void> _firebaseLogin() async {
@@ -239,25 +231,6 @@ class _LoginPageState extends State<LoginPage2> {
       context,
       MaterialPageRoute(builder: (context) => const PasswordSearchPage()),
     );
-  }
-
-  Future<void> _kakaoLogin() async {
-    try {
-      bool isInstalled = await isKakaoTalkInstalled();
-      if (isInstalled) {
-        await UserApi.instance.loginWithKakaoTalk();
-      } else {
-        await UserApi.instance.loginWithKakaoAccount();
-      }
-      // 성공 시 HomeScreen으로 이동
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
-    } catch (e) {
-      print('카카오톡 로그인 실패: $e');
-      // 오류 처리
-    }
   }
 
   void _signup() {
@@ -365,14 +338,6 @@ class _LoginPageState extends State<LoginPage2> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: _kakaoLogin,
-                  child: Image.asset(
-                    'assets/Image/kakaologinbtn.png',
-                    height: 60,
-                  ),
-                ),
-                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -381,3 +346,4 @@ class _LoginPageState extends State<LoginPage2> {
     );
   }
 }
+

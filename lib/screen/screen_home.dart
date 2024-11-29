@@ -4,6 +4,7 @@ import 'package:quiz_app/screen/screen_quiz.dart';
 import 'package:quiz_app/screen/screen_ranking.dart';
 import 'package:quiz_app/screen/screen_my_page.dart';
 import 'package:quiz_app/screen/screen_subject.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../main.dart'; // screen_subject 추가
 
@@ -15,28 +16,42 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Define the quiz list.
-  List<Quiz> quizs = [
-    Quiz.fromMap({
-      'title': '첫 번째 문제입니다.',
-      'candidates': ['선택지1', '선택지2', '선택지3', '선택지4'],
-      'answer': 0,
-      'hint': '정답은 첫 번째 선택지입니다.', // 힌트 추가
-    }),
-    Quiz.fromMap({
-      'title': '두 번째 문제입니다.',
-      'candidates': ['선택지1', '선택지2', '선택지3', '선택지4'],
-      'answer': 1,
-      'hint': '정답은 두 번째 선택지입니다.', // 힌트 추가
-    }),
-    Quiz.fromMap({
-      'title': '세 번째 문제입니다.',
-      'candidates': ['선택지1', '선택지2', '선택지3', '선택지4'],
-      'answer': 2,
-      'hint': '정답은 세 번째 선택지입니다.', // 힌트 추가
-    }),
-  ];
+  // 퀴즈 데이터를 Firestore에서 가져오기 위해 비동기 로딩
+  List<Quiz> quizs = [];
+  bool _isLoading = true; // 로딩 상태
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchQuizzes(); // Firestore에서 데이터 가져오기
+  }
+
+  // Firestore에서 데이터를 가져오는 메서드
+  Future<void> _fetchQuizzes() async {
+    try {
+      final quizCollection = FirebaseFirestore.instance
+          .collection('quizzes') // Firestore에서 'quizzes' 컬렉션 사용
+          .doc('science') // 'science' 문서 선택
+          .get();
+
+      // Firestore에서 데이터를 가져옴
+      final quizData = await quizCollection;
+      final quizList = quizData.data()?['quizList'] as List<dynamic>?;
+
+      if (quizList != null) {
+        setState(() {
+          // Firestore 데이터 파싱하여 Quiz 모델로 변환
+          quizs = quizList.map((quiz) => Quiz.fromMap(quiz)).toList();
+          _isLoading = false; // 로딩 상태 종료
+        });
+      }
+    } catch (e) {
+      print('퀴즈 데이터를 가져오는 중 오류 발생: $e');
+      setState(() {
+        _isLoading = false; // 오류 발생 시 로딩 상태 종료
+      });
+    }
+  }
   // Initialize screens with quiz list.
   late final List<Widget> _screens = [
     HomeScreenContent(quizs: quizs), // Passing quiz list
