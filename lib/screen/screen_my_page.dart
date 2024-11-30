@@ -52,6 +52,9 @@ class _MyPageScreenState extends State<MyPageScreen> {
           _school = data['school'] ?? '학교 없음';
           _correctScore = (data['correctScore'] as num).toInt();
           _maxScore = (data['maxScore'] as num).toInt();
+          if (_maxScore == 0){
+            _maxScore = 1;
+          }
           _correctRate = _correctScore / _maxScore;
 
           // 각 점수 업데이트
