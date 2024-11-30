@@ -38,7 +38,7 @@ class _PasswordSearchPageState extends State<PasswordSearchPage> {
   void _password() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const PasswordPage2()),
+      MaterialPageRoute(builder: (context) => const LoginPage2()),
     );
   }
 
@@ -93,7 +93,7 @@ class _PasswordSearchPageState extends State<PasswordSearchPage> {
                       );
                     }
                   },
-                  child: const Text('인증번호'),
+                  child: const Text('발송하기'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.grey, // primary를 foregroundColor로 변경
                   ),
@@ -102,31 +102,31 @@ class _PasswordSearchPageState extends State<PasswordSearchPage> {
             ),
             const SizedBox(height: 16),
             // 인증번호 입력 필드
-            TextField(
-              controller: _verificationController,
-              decoration: InputDecoration(
-                hintText: '인증번호',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                suffixIcon: TextButton(
-                  onPressed: () {
-                    // 인증번호 확인 로직 추가 (추후 구현)
-                  },
-                  child: const Text('확인'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.grey, // primary를 foregroundColor로 변경
-                  ),
-                ),
-              ),
-            ),
+            // TextField(
+            //   controller: _verificationController,
+            //   decoration: InputDecoration(
+            //     hintText: '인증번호',
+            //     filled: true,
+            //     fillColor: Colors.white,
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(20),
+            //       borderSide: BorderSide.none,
+            //     ),
+            //     contentPadding: const EdgeInsets.symmetric(
+            //       horizontal: 20,
+            //       vertical: 16,
+            //     ),
+            //     suffixIcon: TextButton(
+            //       onPressed: () {
+            //         // 인증번호 확인 로직 추가 (추후 구현)
+            //       },
+            //       child: const Text('확인'),
+            //       style: TextButton.styleFrom(
+            //         foregroundColor: Colors.grey, // primary를 foregroundColor로 변경
+            //       ),
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 240),
             // 비밀번호 찾기 버튼
             ElevatedButton(
@@ -139,7 +139,7 @@ class _PasswordSearchPageState extends State<PasswordSearchPage> {
                 ),
               ),
               child: const Text(
-                '비밀번호 찾기',
+                '재설정한 비밀번호로 로그인하기',
                 style: TextStyle(
                   color: Color(0xFFFFFFFF), // 텍스트 색상 (흰색)
                   fontWeight: FontWeight.bold, // 텍스트 굵기
@@ -292,3 +292,4 @@ class _PasswordSearchPageState extends State<PasswordSearchPage> {
 //     );
 //   }
 // }
+
