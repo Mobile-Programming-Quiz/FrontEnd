@@ -24,9 +24,13 @@ class _ResultScreenState extends State<ResultScreen> {
   bool _hasVotedToday = false; // 초기값 false로 선언
   late final List<Widget> _screens;
 
+  // 사용자 이름 상태 변수 추가
+  String _userName = "로딩 중..."; // 초기값 설정
+
   @override
   void initState() {
     super.initState();
+
     checkVotingStatus();
     print("initState 실행");
 
@@ -53,6 +57,36 @@ class _ResultScreenState extends State<ResultScreen> {
       MyPageScreen(),
     ];
   }
+
+  // Firestore에서 사용자 이름 가져오기
+  Future<void> fetchUserName() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          _userName = "로그인이 필요합니다.";
+        });
+        return;
+      }
+
+      final userDoc = await FirebaseFirestore.instance.collection('user').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data() != null) {
+        setState(() {
+          _userName = userDoc.data()!['name'] ?? "알 수 없는 사용자";
+        });
+      } else {
+        setState(() {
+          _userName = "사용자 정보 없음";
+        });
+      }
+    } catch (e) {
+      print("사용자 이름 가져오기 오류: $e");
+      setState(() {
+        _userName = "오류 발생: ${e.toString()}";
+      });
+    }
+  }
+
 
 
 
@@ -200,6 +234,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
 
   Widget _buildResultContent() {
+    fetchUserName();
     int score = 0;
     for (int i = 0; i < widget.quizs.length; i++) {
       if (widget.quizs[i].answer == widget.answers[i]) {
@@ -240,7 +275,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'Gomoph님의 점수는',
+                          '$_userName님의 점수는',
                           style: TextStyle(
                             fontSize: width * 0.06,
                             fontWeight: FontWeight.bold,
@@ -303,7 +338,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         ),
                       ),
 
-                        onPressed: () => castVote('scienceVote'),
+                        onPressed: () => castVote('science'),
                         child: Text('과학',style: TextStyle(
                           fontSize: width * 0.05,
                           fontWeight: FontWeight.bold,
@@ -319,7 +354,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         ),
                       ),
 
-                        onPressed: () => castVote('historyVote'),
+                        onPressed: () => castVote('history'),
                         child: Text('역사',style: TextStyle(
                           fontSize: width * 0.05,
                           fontWeight: FontWeight.bold,
@@ -335,7 +370,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         ),
                       ),
 
-                        onPressed: () => castVote('characterVote'),
+                        onPressed: () => castVote('character'),
                         child: Text('인물',style: TextStyle(
                           fontSize: width * 0.05,
                           fontWeight: FontWeight.bold,
@@ -351,7 +386,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         ),
                       ),
 
-                        onPressed: () => castVote('mathVote'),
+                        onPressed: () => castVote('math'),
                         child: Text('수학',style: TextStyle(
                           fontSize: width * 0.05,
                           fontWeight: FontWeight.bold,

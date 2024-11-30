@@ -116,7 +116,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   value: _correctRate, // 정답률
                   strokeWidth: 8,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.green), // 첫 번째 색상
-                  backgroundColor: Colors.purple, // 나머지 부분 색상
+                  backgroundColor: Colors.red, // 나머지 부분 색상
                 ),
               ),
               CircleAvatar(
