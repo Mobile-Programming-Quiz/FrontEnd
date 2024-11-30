@@ -1,217 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:quiz_app/model/model_quiz.dart';
-// import 'package:quiz_app/screen/screen_home.dart';
-// import 'package:quiz_app/screen/screen_ranking.dart';
-// import 'package:quiz_app/screen/screen_my_page.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-//
-// import '../main.dart';
-//
-// class ResultScreen extends StatefulWidget {
-//   final List<int> answers;
-//   final List<Quiz> quizs;
-//
-//   ResultScreen({required this.answers, required this.quizs});
-//
-//   @override
-//   _ResultScreenState createState() => _ResultScreenState();
-// }
-//
-// class _ResultScreenState extends State<ResultScreen> {
-//   int _selectedIndex = 0;
-//   bool _scoreUpdated = false;
-//   late final List<Widget> _screens;
-//   bool _hasVotedToday = false;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     checkVotingStatus();
-//     _screens = [
-//       HomeScreen(),
-//       RankingPageView(),
-//       MyPageScreen(),
-//     ];
-//   }
-//
-//   Future<void> checkVotingStatus() async {
-//     final user = FirebaseAuth.instance.currentUser;
-//     if (user == null) return;
-//
-//     final today = DateTime.now();
-//     final todayString = "${today.year}-${today.month}-${today.day}";
-//     final docRef = FirebaseFirestore.instance
-//         .collection('user')
-//         .doc(user.uid)
-//         .collection('votes')
-//         .doc(todayString);
-//
-//     final doc = await docRef.get();
-//     setState(() {
-//       _hasVotedToday = doc.exists;
-//     });
-//   }
-//
-//   Future<void> castVote(String voteCategory) async {
-//     if (_hasVotedToday) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('오늘은 이미 투표하셨습니다.')),
-//       );
-//       return;
-//     }
-//
-//     final user = FirebaseAuth.instance.currentUser;
-//     if (user == null) return;
-//
-//     final voteDoc = FirebaseFirestore.instance
-//         .collection('vote')
-//         .doc(voteCategory);
-//
-//     final today = DateTime.now();
-//     final todayString = "${today.year}-${today.month}-${today.day}";
-//     final userVoteDoc = FirebaseFirestore.instance
-//         .collection('user')
-//         .doc(user.uid)
-//         .collection('votes')
-//         .doc(todayString);
-//
-//     await FirebaseFirestore.instance.runTransaction((transaction) async {
-//       final voteSnapshot = await transaction.get(voteDoc);
-//       if (!voteSnapshot.exists) {
-//         throw Exception("투표 문서가 존재하지 않습니다.");
-//       }
-//       final currentVoteNumber = voteSnapshot.data()?['voteNumber'] ?? 0;
-//
-//       transaction.update(voteDoc, {
-//         'voteNumber': currentVoteNumber + 1,
-//       });
-//
-//       transaction.set(userVoteDoc, {
-//         'votedAt': FieldValue.serverTimestamp(),
-//       });
-//     });
-//
-//     setState(() {
-//       _hasVotedToday = true;
-//     });
-//
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text('투표가 완료되었습니다.')),
-//     );
-//   }
-//
-//   Widget _buildResultContent() {
-//     Size screenSize = MediaQuery.of(context).size;
-//     double width = screenSize.width;
-//
-//     return Center(
-//       child: SingleChildScrollView(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Container(
-//               decoration: BoxDecoration(
-//                 color: Color(0xFF7E3AB5),
-//                 borderRadius: BorderRadius.circular(25),
-//               ),
-//               width: width * 0.85,
-//               padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   Text(
-//                     '내일 주제 투표하기!',
-//                     style: TextStyle(
-//                       fontSize: width * 0.05,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.white,
-//                     ),
-//                   ),
-//                   SizedBox(height: 15),
-//                   Wrap(
-//                     spacing: 10,
-//                     runSpacing: 10,
-//                     children: [
-//                       ElevatedButton(
-//                         onPressed: () => castVote('scienceVote'),
-//                         child: Text('과학'),
-//                       ),
-//                       ElevatedButton(
-//                         onPressed: () => castVote('historyVote'),
-//                         child: Text('역사'),
-//                       ),
-//                       ElevatedButton(
-//                         onPressed: () => castVote('characterVote'),
-//                         child: Text('인물'),
-//                       ),
-//                       ElevatedButton(
-//                         onPressed: () => castVote('mathVote'),
-//                         child: Text('수학'),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       appBar: AppBar(
-//         title: GestureDetector(
-//           onTap: () {
-//             Navigator.pushAndRemoveUntil(
-//               context,
-//               MaterialPageRoute(builder: (context) => HomeScreen()),
-//                   (Route<dynamic> route) => false,
-//             );
-//           },
-//           child: Image.asset(
-//             'images/logo.png',
-//             width: 150,
-//           ),
-//         ),
-//         backgroundColor: Colors.white,
-//         centerTitle: true,
-//         elevation: 0,
-//         toolbarHeight: 100,
-//         automaticallyImplyLeading: false,
-//       ),
-//       body: _buildResultContent(),
-//       bottomNavigationBar: BottomNavigationBar(
-//         items: [
-//           BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-//           BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '랭킹'),
-//           BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
-//         ],
-//         currentIndex: _selectedIndex,
-//         selectedItemColor: Colors.deepPurple,
-//         unselectedItemColor: Colors.grey,
-//         backgroundColor: Colors.white,
-//         onTap: (index) => setState(() => _selectedIndex = index),
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_home.dart';
@@ -344,27 +130,57 @@ class _ResultScreenState extends State<ResultScreen> {
       }
 
       final userDocRef = FirebaseFirestore.instance.collection('user').doc(user.uid);
+      final todaySubjectDocRef = FirebaseFirestore.instance.collection('vote').doc('todaySubject');
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final snapshot = await transaction.get(userDocRef);
-        if (!snapshot.exists) {
+        final userSnapshot = await transaction.get(userDocRef);
+        final todaySubjectSnapshot = await transaction.get(todaySubjectDocRef);
+
+        if (!userSnapshot.exists) {
           throw Exception("사용자 문서가 존재하지 않습니다.");
         }
 
+        if (!todaySubjectSnapshot.exists) {
+          throw Exception("오늘의 주제 문서가 존재하지 않습니다.");
+        }
 
+        // 현재 사용자 데이터와 todaySubject 데이터 가져오기
+        final currentData = userSnapshot.data()!;
+        final todaySubject = todaySubjectSnapshot.data()?['todaySubject'] ?? '';
 
-        final currentData = snapshot.data()!;
         final int currentCorrectScore = currentData['correctScore']?.toInt() ?? 0;
         final int currentMaxScore = currentData['maxScore']?.toInt() ?? 0;
 
-        // initState가 매번 두번씩 실행되는 것을 확인하여 절반의 값을 더하도록 수정함
-        final updatedCorrectScore = currentCorrectScore + totalScore/2;
-        final updatedMaxScore = currentMaxScore + maxScore/2;
+        // 현재 점수 가져오기
+        int scienceScore = currentData['scienceScore']?.toInt() ?? 0;
+        int historyScore = currentData['historyScore']?.toInt() ?? 0;
+        int mathScore = currentData['mathScore']?.toInt() ?? 0;
+        int characterScore = currentData['characterScore']?.toInt() ?? 0;
 
+        // todaySubject에 따라 점수 추가
+        if (todaySubject == 'science') {
+          scienceScore += 5;
+        } else if (todaySubject == 'history') {
+          historyScore += 5;
+        } else if (todaySubject == 'math') {
+          mathScore += 5;
+        } else if (todaySubject == 'character') {
+          characterScore += 5;
+        }
+
+        // 총 점수 계산
+        final updatedCorrectScore = currentCorrectScore + totalScore / 2;
+        final updatedMaxScore = currentMaxScore + maxScore / 2;
+
+        // 사용자 문서 업데이트
         transaction.update(userDocRef, {
           'score': totalScore,
           'correctScore': updatedCorrectScore,
           'maxScore': updatedMaxScore,
+          'scienceScore': scienceScore,
+          'historyScore': historyScore,
+          'mathScore': mathScore,
+          'characterScore': characterScore,
         });
       });
 
@@ -376,6 +192,7 @@ class _ResultScreenState extends State<ResultScreen> {
       _isUpdatingScore = false;
     }
   }
+
 
 
 
