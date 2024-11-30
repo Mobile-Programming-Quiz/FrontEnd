@@ -33,7 +33,7 @@ class _ResultScreenState extends State<ResultScreen> {
     ];
   }
 
-  Future<void> updateUserScore(int totalScore) async {
+  Future<void> updateUserScore(int totalScore, int maxScore) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -42,16 +42,41 @@ class _ResultScreenState extends State<ResultScreen> {
 
       final userDocRef = FirebaseFirestore.instance.collection('user').doc(user.uid);
 
-      // Firestore의 score를 덮어쓰기
-      await userDocRef.update({
-        'score': totalScore, // 덮어쓰기 방식으로 점수 업데이트
+      int updatedCorrectScore = 0;
+      int updatedMaxScore = 0;
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        // 현재 유저 데이터 가져오기
+        final snapshot = await transaction.get(userDocRef);
+
+        if (!snapshot.exists) {
+          throw Exception("사용자 문서가 존재하지 않습니다.");
+        }
+
+        // 기존 점수 가져오기
+        final currentData = snapshot.data()!;
+        final int currentCorrectScore = currentData['correctScore'].toInt() ?? 0;
+        final int currentMaxScore = currentData['maxScore'].toInt() ?? 0;
+
+        // 누적 점수 계산
+        updatedCorrectScore = currentCorrectScore + totalScore;
+        updatedMaxScore = currentMaxScore + maxScore;
+
+        // Firestore 업데이트 (덮어쓰기 및 누적)
+        transaction.update(userDocRef, {
+          'score': totalScore, // 덮어쓰기 방식
+          'correctScore': updatedCorrectScore, // 누적 방식
+          'maxScore': updatedMaxScore, // 누적 방식
+        });
       });
 
-      print("점수가 성공적으로 저장되었습니다: $totalScore");
+      print("점수가 성공적으로 업데이트되었습니다: score=$totalScore, correctScore=$updatedCorrectScore, maxScore=$updatedMaxScore");
     } catch (e) {
-      print("점수 저장 중 오류 발생: $e");
+      print("점수 업데이트 중 오류 발생: $e");
     }
   }
+
+
 
 
   Widget _buildResultContent() {
@@ -66,7 +91,7 @@ class _ResultScreenState extends State<ResultScreen> {
     int maxScore = widget.quizs.length * 10;
 
     // Firestore에 점수 저장 (덮어쓰기)
-    updateUserScore(totalScore);
+    updateUserScore(totalScore, maxScore);
 
     Size screenSize = MediaQuery.of(context).size;
     double width = screenSize.width;

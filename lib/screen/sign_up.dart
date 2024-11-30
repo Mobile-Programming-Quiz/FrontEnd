@@ -77,6 +77,8 @@ class SignupPage extends StatelessWidget {
         'email': email,
         'school': schoolController.text,
         'score': 0, // score 필드 추가
+        'correctScore':0, // 누적 정답
+        'maxScore':0, // 누적 푼 문제
         'createdAt': FieldValue.serverTimestamp(),
       });
 
