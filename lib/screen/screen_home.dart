@@ -239,10 +239,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchQuizzes() async {
     try {
-      // Firestore 데이터 가져오기
+      // 먼저 todaySubject 데이터를 가져오기
+      final todaySubjectDoc = await FirebaseFirestore.instance
+          .collection('vote')
+          .doc('todaySubject')
+          .get();
+
+      final todaySubject = todaySubjectDoc.data()?['todaySubject'] as String?;
+      if (todaySubject == null) {
+        throw Exception('오늘의 주제가 설정되지 않았습니다.');
+      }
+
+      // todaySubject 기반으로 퀴즈 데이터를 가져오기
       final doc = await FirebaseFirestore.instance
           .collection('quizzes')
-          .doc('science')
+          .doc(todaySubject) // 동적으로 todaySubject 사용
           .get();
 
       final data = doc.data();
