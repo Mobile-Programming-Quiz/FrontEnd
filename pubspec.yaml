@@ -81,6 +81,10 @@ flutter:
   assets:
    - images/quiz.jpeg
    - images/logo.png
+   - images/history.png
+   - images/character.png
+   - images/math.png
+   - images/science.png
    - images/correct.json
    - images/wrong.json
    - images/kakao_icon.png
