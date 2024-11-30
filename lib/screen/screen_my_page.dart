@@ -191,13 +191,13 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ),
           SizedBox(height: 20),
           // 점수 비율을 바 반영
-          _buildStatBar('과학', _scienceScore / 100, Colors.blue),
+          _buildStatBar('과학', _scienceScore / _maxScore, Colors.blue),
           SizedBox(height: 10),
-          _buildStatBar('역사', _historyScore / 100, Colors.orange),
+          _buildStatBar('역사', _historyScore / _maxScore, Colors.orange),
           SizedBox(height: 10),
-          _buildStatBar('인물', _characterScore / 100, Colors.green),
+          _buildStatBar('인물', _characterScore / _maxScore, Colors.green),
           SizedBox(height: 10),
-          _buildStatBar('수학', _mathScore / 100, Colors.purple),
+          _buildStatBar('수학', _mathScore / _maxScore, Colors.purple),
         ],
       ),
     );
