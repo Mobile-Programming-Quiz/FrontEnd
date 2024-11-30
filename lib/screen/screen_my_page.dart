@@ -1,14 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'setting_pages/setting.dart'; // SettingsPage import
 
-class MyPageScreen extends StatelessWidget {
+class MyPageScreen extends StatefulWidget {
   const MyPageScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MyPageScreen> createState() => _MyPageScreenState();
+}
+
+class _MyPageScreenState extends State<MyPageScreen> {
+  String _name = '로딩 중...'; // 기본 이름
+  String _school = '로딩 중...'; // 기본 학교
+  double _correctRate = 0.0; // 초기 정답률
+  int _correctScore =0;
+  int _maxScore=0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData(); // Firestore 데이터 로드
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception("로그인된 사용자가 없습니다.");
+      }
+
+      print("사용자 UID: ${user.uid}");
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('user') // Firestore 컬렉션 이름 확인
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists && userDoc.data() != null) {
+        final data = userDoc.data()!;
+        print("Firestore 데이터: $data");
+
+        setState(() {
+          _name = data['name'] ?? '이름 없음';
+          _school = data['school'] ?? '학교 없음';
+          _correctScore = (data['correctScore'] as num).toInt();
+          _maxScore = (data['maxScore'] as num).toInt();
+          _correctRate = _correctScore / _maxScore;
+        });
+      } else {
+        print("사용자 문서가 Firestore에 없습니다.");
+        setState(() {
+          _name = '사용자 정보 없음';
+          _school = '학교 정보 없음';
+        });
+      }
+    } catch (e) {
+      print("사용자 데이터 로드 중 오류 발생: $e");
+      setState(() {
+        _name = '오류 발생';
+        _school = '오류 발생';
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -39,7 +99,7 @@ class MyPageScreen extends StatelessWidget {
                 height: 120,
                 width: 120,
                 child: CircularProgressIndicator(
-                  value: 0.8, // 총 비율 예시값 (80%)
+                  value: _correctRate, // 정답률
                   strokeWidth: 8,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.green), // 첫 번째 색상
                   backgroundColor: Colors.purple, // 나머지 부분 색상
@@ -58,7 +118,7 @@ class MyPageScreen extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            '홍길동',
+            _name, // Firestore에서 가져온 이름
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -66,7 +126,7 @@ class MyPageScreen extends StatelessWidget {
             ),
           ),
           Text(
-            '한성대학교',
+            _school, // Firestore에서 가져온 학교 이름
             style: TextStyle(
               fontSize: 14,
               color: Colors.black54,
@@ -74,7 +134,7 @@ class MyPageScreen extends StatelessWidget {
           ),
           SizedBox(height: 5),
           Text(
-            '퀴즈 정답률 - 80%',
+            '퀴즈 정답률 - ${(_correctRate * 100).toStringAsFixed(1)}%', // Firestore에서 계산한 정답률
             style: TextStyle(
               fontSize: 14,
               color: Colors.purple,
@@ -111,7 +171,7 @@ class MyPageScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '지금까지 총 ___개의 상식을 습득하셨어요!!',
+            '지금까지 총 ${(_maxScore / 10).toInt()}개의 상식을 습득하셨어요!!',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
