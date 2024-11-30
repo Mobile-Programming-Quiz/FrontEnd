@@ -1,3 +1,217 @@
+// import 'package:flutter/material.dart';
+// import 'package:quiz_app/model/model_quiz.dart';
+// import 'package:quiz_app/screen/screen_home.dart';
+// import 'package:quiz_app/screen/screen_ranking.dart';
+// import 'package:quiz_app/screen/screen_my_page.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+//
+// import '../main.dart';
+//
+// class ResultScreen extends StatefulWidget {
+//   final List<int> answers;
+//   final List<Quiz> quizs;
+//
+//   ResultScreen({required this.answers, required this.quizs});
+//
+//   @override
+//   _ResultScreenState createState() => _ResultScreenState();
+// }
+//
+// class _ResultScreenState extends State<ResultScreen> {
+//   int _selectedIndex = 0;
+//   bool _scoreUpdated = false;
+//   late final List<Widget> _screens;
+//   bool _hasVotedToday = false;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     checkVotingStatus();
+//     _screens = [
+//       HomeScreen(),
+//       RankingPageView(),
+//       MyPageScreen(),
+//     ];
+//   }
+//
+//   Future<void> checkVotingStatus() async {
+//     final user = FirebaseAuth.instance.currentUser;
+//     if (user == null) return;
+//
+//     final today = DateTime.now();
+//     final todayString = "${today.year}-${today.month}-${today.day}";
+//     final docRef = FirebaseFirestore.instance
+//         .collection('user')
+//         .doc(user.uid)
+//         .collection('votes')
+//         .doc(todayString);
+//
+//     final doc = await docRef.get();
+//     setState(() {
+//       _hasVotedToday = doc.exists;
+//     });
+//   }
+//
+//   Future<void> castVote(String voteCategory) async {
+//     if (_hasVotedToday) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('오늘은 이미 투표하셨습니다.')),
+//       );
+//       return;
+//     }
+//
+//     final user = FirebaseAuth.instance.currentUser;
+//     if (user == null) return;
+//
+//     final voteDoc = FirebaseFirestore.instance
+//         .collection('vote')
+//         .doc(voteCategory);
+//
+//     final today = DateTime.now();
+//     final todayString = "${today.year}-${today.month}-${today.day}";
+//     final userVoteDoc = FirebaseFirestore.instance
+//         .collection('user')
+//         .doc(user.uid)
+//         .collection('votes')
+//         .doc(todayString);
+//
+//     await FirebaseFirestore.instance.runTransaction((transaction) async {
+//       final voteSnapshot = await transaction.get(voteDoc);
+//       if (!voteSnapshot.exists) {
+//         throw Exception("투표 문서가 존재하지 않습니다.");
+//       }
+//       final currentVoteNumber = voteSnapshot.data()?['voteNumber'] ?? 0;
+//
+//       transaction.update(voteDoc, {
+//         'voteNumber': currentVoteNumber + 1,
+//       });
+//
+//       transaction.set(userVoteDoc, {
+//         'votedAt': FieldValue.serverTimestamp(),
+//       });
+//     });
+//
+//     setState(() {
+//       _hasVotedToday = true;
+//     });
+//
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text('투표가 완료되었습니다.')),
+//     );
+//   }
+//
+//   Widget _buildResultContent() {
+//     Size screenSize = MediaQuery.of(context).size;
+//     double width = screenSize.width;
+//
+//     return Center(
+//       child: SingleChildScrollView(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Container(
+//               decoration: BoxDecoration(
+//                 color: Color(0xFF7E3AB5),
+//                 borderRadius: BorderRadius.circular(25),
+//               ),
+//               width: width * 0.85,
+//               padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Text(
+//                     '내일 주제 투표하기!',
+//                     style: TextStyle(
+//                       fontSize: width * 0.05,
+//                       fontWeight: FontWeight.bold,
+//                       color: Colors.white,
+//                     ),
+//                   ),
+//                   SizedBox(height: 15),
+//                   Wrap(
+//                     spacing: 10,
+//                     runSpacing: 10,
+//                     children: [
+//                       ElevatedButton(
+//                         onPressed: () => castVote('scienceVote'),
+//                         child: Text('과학'),
+//                       ),
+//                       ElevatedButton(
+//                         onPressed: () => castVote('historyVote'),
+//                         child: Text('역사'),
+//                       ),
+//                       ElevatedButton(
+//                         onPressed: () => castVote('characterVote'),
+//                         child: Text('인물'),
+//                       ),
+//                       ElevatedButton(
+//                         onPressed: () => castVote('mathVote'),
+//                         child: Text('수학'),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.white,
+//       appBar: AppBar(
+//         title: GestureDetector(
+//           onTap: () {
+//             Navigator.pushAndRemoveUntil(
+//               context,
+//               MaterialPageRoute(builder: (context) => HomeScreen()),
+//                   (Route<dynamic> route) => false,
+//             );
+//           },
+//           child: Image.asset(
+//             'images/logo.png',
+//             width: 150,
+//           ),
+//         ),
+//         backgroundColor: Colors.white,
+//         centerTitle: true,
+//         elevation: 0,
+//         toolbarHeight: 100,
+//         automaticallyImplyLeading: false,
+//       ),
+//       body: _buildResultContent(),
+//       bottomNavigationBar: BottomNavigationBar(
+//         items: [
+//           BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+//           BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '랭킹'),
+//           BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
+//         ],
+//         currentIndex: _selectedIndex,
+//         selectedItemColor: Colors.deepPurple,
+//         unselectedItemColor: Colors.grey,
+//         backgroundColor: Colors.white,
+//         onTap: (index) => setState(() => _selectedIndex = index),
+//       ),
+//     );
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_home.dart';
@@ -21,12 +235,13 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   int _selectedIndex = 0;
   bool _scoreUpdated = false;
-
+  bool _hasVotedToday = false; // 초기값 false로 선언
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
+    checkVotingStatus();
     print("initState 실행");
 
     int score = 0;
@@ -56,6 +271,67 @@ class _ResultScreenState extends State<ResultScreen> {
 
 
   bool _isUpdatingScore = false; // 상태 플래그 추가
+
+  Future<void> checkVotingStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final today = DateTime.now();
+    final todayString = "${today.year}-${today.month}-${today.day}";
+    final docRef = FirebaseFirestore.instance
+        .collection('user')
+        .doc(user.uid)
+        .collection('votes')
+        .doc(todayString);
+
+    final doc = await docRef.get();
+    setState(() {
+      _hasVotedToday = doc.exists;
+    });
+  }
+
+  Future<void> castVote(String voteCategory) async {
+    // 사용자가 이미 투표했는지 확인
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final today = DateTime.now();
+    final todayString = "${today.year}-${today.month}-${today.day}";
+    final userVoteDoc = FirebaseFirestore.instance
+        .collection('user')
+        .doc(user.uid)
+        .collection('votes')
+        .doc(todayString);
+
+    // 하루에 한 번만 투표 가능
+    final userVoteSnapshot = await userVoteDoc.get();
+    if (userVoteSnapshot.exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오늘은 이미 투표하셨습니다.')),
+      );
+      return;
+    }
+
+    // 투표 컬렉션 업데이트
+    final voteDoc = FirebaseFirestore.instance.collection('vote').doc(voteCategory);
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final voteSnapshot = await transaction.get(voteDoc);
+      if (!voteSnapshot.exists) {
+        throw Exception("투표 문서가 존재하지 않습니다.");
+      }
+      final currentVoteNumber = voteSnapshot.data()?['voteNumber'] ?? 0;
+      transaction.update(voteDoc, {
+        'voteNumber': currentVoteNumber + 1,
+      });
+      transaction.set(userVoteDoc, {
+        'votedAt': FieldValue.serverTimestamp(),
+      });
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('투표가 완료되었습니다.')),
+    );
+  }
 
   Future<void> updateUserScore(int totalScore, int maxScore) async {
     if (_isUpdatingScore || _scoreUpdated) return; // 이미 실행 중이거나 저장 완료된 경우 종료
@@ -201,19 +477,70 @@ class _ResultScreenState extends State<ResultScreen> {
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      for (int i = 1; i <= 4; i++)
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF954FCC), // 버튼 배경색
-                            foregroundColor: Colors.white, // 텍스트 색상
-                            minimumSize: Size(width * 0.35, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(45),
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: Text('주제$i'),
+                      ElevatedButton(style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF954FCC), // 버튼 배경색
+                        foregroundColor: Colors.white, // 텍스트 색상
+                        minimumSize: Size(width * 0.35, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(45),
                         ),
+                      ),
+
+                        onPressed: () => castVote('scienceVote'),
+                        child: Text('과학',style: TextStyle(
+                          fontSize: width * 0.05,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          ),),
+                      ),
+                      ElevatedButton(style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF954FCC), // 버튼 배경색
+                        foregroundColor: Colors.white, // 텍스트 색상
+                        minimumSize: Size(width * 0.35, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(45),
+                        ),
+                      ),
+
+                        onPressed: () => castVote('historyVote'),
+                        child: Text('역사',style: TextStyle(
+                          fontSize: width * 0.05,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),),
+                      ),
+                      ElevatedButton(style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF954FCC), // 버튼 배경색
+                        foregroundColor: Colors.white, // 텍스트 색상
+                        minimumSize: Size(width * 0.35, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(45),
+                        ),
+                      ),
+
+                        onPressed: () => castVote('characterVote'),
+                        child: Text('인물',style: TextStyle(
+                          fontSize: width * 0.05,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),),
+                      ),
+                      ElevatedButton(style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF954FCC), // 버튼 배경색
+                        foregroundColor: Colors.white, // 텍스트 색상
+                        minimumSize: Size(width * 0.35, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(45),
+                        ),
+                      ),
+
+                        onPressed: () => castVote('mathVote'),
+                        child: Text('수학',style: TextStyle(
+                          fontSize: width * 0.05,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),),
+                      ),
                     ],
                   ),
                 ],
