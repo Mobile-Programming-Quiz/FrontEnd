@@ -27,26 +27,7 @@ class _RankingPageViewState extends State<RankingPageView> {
           TotalRankingPage(), // 전체 랭킹 페이지
         ],
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   currentIndex: _currentIndex, // 현재 선택된 페이지에 따라 표시
-      //   onTap: (index) {
-      //     setState(() {
-      //       _currentIndex = index;
-      //     });
-      //   },
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.school),
-      //       label: '학교 랭킹',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.bar_chart),
-      //       label: '전체 랭킹',
-      //     ),
-      //   ],
-      //   selectedItemColor: const Color(0xFF7E3AB5),
-      //   unselectedItemColor: Colors.grey,
-      // ),
+
     );
   }
 }
