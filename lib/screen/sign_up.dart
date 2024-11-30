@@ -79,6 +79,10 @@ class SignupPage extends StatelessWidget {
         'score': 0, // score 필드 추가
         'correctScore':0, // 누적 정답
         'maxScore':0, // 누적 푼 문제
+        'scienceScore':0, //과학
+        'historyScore':0, //역사
+        'characterScore':0, //인물
+        'mathScore':0, //수학
         'createdAt': FieldValue.serverTimestamp(),
       });
 
