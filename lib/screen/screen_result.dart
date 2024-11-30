@@ -20,20 +20,47 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   int _selectedIndex = 0;
+  bool _scoreUpdated = false;
 
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
+    print("initState 실행");
+
+    int score = 0;
+    for (int i = 0; i < widget.quizs.length; i++) {
+      if (widget.quizs[i].answer == widget.answers[i]) {
+        score += 1;
+      }
+    }
+
+    int totalScore = score * 10;
+    int maxScore = widget.quizs.length * 10;
+
+    if (!_scoreUpdated) {
+      print("점수 업데이트 시작: $totalScore/$maxScore");
+      updateUserScore(totalScore, maxScore);
+    } else {
+      print("점수 업데이트가 이미 완료되었습니다.");
+    }
+
     _screens = [
-      HomeScreen(), // 홈 화면
-      RankingPageView(), // 랭킹 화면
-      MyPageScreen(), // 마이페이지 화면
+      HomeScreen(),
+      RankingPageView(),
+      MyPageScreen(),
     ];
   }
 
+
+
+  bool _isUpdatingScore = false; // 상태 플래그 추가
+
   Future<void> updateUserScore(int totalScore, int maxScore) async {
+    if (_isUpdatingScore || _scoreUpdated) return; // 이미 실행 중이거나 저장 완료된 경우 종료
+    _isUpdatingScore = true;
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -42,39 +69,39 @@ class _ResultScreenState extends State<ResultScreen> {
 
       final userDocRef = FirebaseFirestore.instance.collection('user').doc(user.uid);
 
-      int updatedCorrectScore = 0;
-      int updatedMaxScore = 0;
-
       await FirebaseFirestore.instance.runTransaction((transaction) async {
-        // 현재 유저 데이터 가져오기
         final snapshot = await transaction.get(userDocRef);
-
         if (!snapshot.exists) {
           throw Exception("사용자 문서가 존재하지 않습니다.");
         }
 
-        // 기존 점수 가져오기
+
+
         final currentData = snapshot.data()!;
-        final int currentCorrectScore = currentData['correctScore'].toInt() ?? 0;
-        final int currentMaxScore = currentData['maxScore'].toInt() ?? 0;
+        final int currentCorrectScore = currentData['correctScore']?.toInt() ?? 0;
+        final int currentMaxScore = currentData['maxScore']?.toInt() ?? 0;
 
-        // 누적 점수 계산
-        updatedCorrectScore = currentCorrectScore + totalScore;
-        updatedMaxScore = currentMaxScore + maxScore;
+        // initState가 매번 두번씩 실행되는 것을 확인하여 절반의 값을 더하도록 수정함
+        final updatedCorrectScore = currentCorrectScore + totalScore/2;
+        final updatedMaxScore = currentMaxScore + maxScore/2;
 
-        // Firestore 업데이트 (덮어쓰기 및 누적)
         transaction.update(userDocRef, {
-          'score': totalScore, // 덮어쓰기 방식
-          'correctScore': updatedCorrectScore, // 누적 방식
-          'maxScore': updatedMaxScore, // 누적 방식
+          'score': totalScore,
+          'correctScore': updatedCorrectScore,
+          'maxScore': updatedMaxScore,
         });
       });
 
-      print("점수가 성공적으로 업데이트되었습니다: score=$totalScore, correctScore=$updatedCorrectScore, maxScore=$updatedMaxScore");
+      print("점수 저장 완료: $totalScore/$maxScore");
+      _scoreUpdated = true; // 점수 저장 완료 상태로 설정
     } catch (e) {
-      print("점수 업데이트 중 오류 발생: $e");
+      print("점수 저장 중 오류 발생: $e");
+    } finally {
+      _isUpdatingScore = false;
     }
   }
+
+
 
 
 
@@ -89,9 +116,9 @@ class _ResultScreenState extends State<ResultScreen> {
 
     int totalScore = score * 10;
     int maxScore = widget.quizs.length * 10;
-
-    // Firestore에 점수 저장 (덮어쓰기)
-    updateUserScore(totalScore, maxScore);
+    //
+    // // Firestore에 점수 저장 (덮어쓰기)
+    // updateUserScore(totalScore, maxScore);
 
     Size screenSize = MediaQuery.of(context).size;
     double width = screenSize.width;
