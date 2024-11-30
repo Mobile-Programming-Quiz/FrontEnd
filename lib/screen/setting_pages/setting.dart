@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:quiz_app/screen/login.dart'; // 로그인 페이지 import (로그아웃 후 이동할 페이지)
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quiz_app/screen/login.dart'; // 로그인 페이지 import
 import 'member_info.dart'; // 회원정보 페이지 import
 
 class SettingsPage extends StatelessWidget {
@@ -10,7 +11,7 @@ class SettingsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Image.asset(
-          'images/logo.png', // Path to 'logo.png' in assets
+          'images/logo.png', // Path to 'logo.png' in assetsㅋ
           width: 150, // Adjust width as needed
         ),
         backgroundColor: Colors.white, // Change AppBar background to white
@@ -72,7 +73,6 @@ class SettingsPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 제목
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -152,7 +152,6 @@ class SettingsPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 제목
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -188,9 +187,30 @@ class SettingsPage extends StatelessWidget {
                       context,
                       label: '탈퇴',
                       color: Colors.purple,
-                      onPressed: () {
-                        print('탈퇴 확인');
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        try {
+                          final user = FirebaseAuth.instance.currentUser;
+
+                          if (user != null) {
+                            // Firestore에서 사용자 데이터 삭제
+                            await FirebaseFirestore.instance
+                                .collection('user')
+                                .doc(user.uid)
+                                .delete();
+
+                            // FirebaseAuth에서 계정 삭제
+                            await user.delete();
+
+                            Navigator.pop(context); // 팝업 닫기
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginPage()), // 로그인 페이지로 이동
+                            );
+                          }
+                        } catch (e) {
+                          print('회원탈퇴 실패: $e');
+                          Navigator.pop(context); // 팝업 닫기
+                        }
                       },
                     ),
                     _buildDialogButton(
