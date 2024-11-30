@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quiz_app/screen/login.dart'; // 로그인 페이지 import
 import 'member_info.dart'; // 회원정보 페이지 import
 
 class SettingsPage extends StatelessWidget {
@@ -8,19 +11,17 @@ class SettingsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Image.asset(
-          'images/logo.png', // Path to 'logo.png' in assets
+          'images/logo.png', // Path to 'logo.png' in assetsㅋ
           width: 150, // Adjust width as needed
         ),
         backgroundColor: Colors.white, // Change AppBar background to white
         centerTitle: true,
         elevation: 0, // Optional: remove shadow
         toolbarHeight: 100,
-
       ),
       body: Column(
         children: [
           SizedBox(height: 10), // 화면 상단 여백 최소화
-
 
           // 메뉴 리스트
           Expanded(
@@ -51,43 +52,6 @@ class SettingsPage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white, // 배경 흰색
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5), // 그림자 색상
-              spreadRadius: 2, // 그림자 확산 정도
-              blurRadius: 10, // 그림자 흐림 정도
-              offset: Offset(0, -2), // 그림자 위치 (위쪽)
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.white, // 네비게이션 바 배경
-          elevation: 0, // 기본 그림자 제거
-          items: [
-            BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/Image/HomeIcon.png')),
-              label: '홈',
-            ),
-            BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/Image/RankIcon.png')),
-              label: '랭킹',
-            ),
-            BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/Image/MypageIcon.png')),
-              label: '마이페이지',
-            ),
-          ],
-          currentIndex: 2, // 현재 탭 설정 (마이페이지)
-          selectedItemColor: Colors.purple,
-          unselectedItemColor: Colors.grey,
-          onTap: (index) {
-            // 여기서 탭 동작 설정 가능
-          },
-        ),
-      ),
     );
   }
 
@@ -109,7 +73,6 @@ class SettingsPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 제목
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -141,9 +104,18 @@ class SettingsPage extends StatelessWidget {
                       context,
                       label: '확인',
                       color: Colors.purple,
-                      onPressed: () {
-                        print('로그아웃 확인');
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        try {
+                          await FirebaseAuth.instance.signOut(); // Firebase 로그아웃
+                          Navigator.pop(context); // 팝업 닫기
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginPage()), // 로그인 페이지로 이동
+                          );
+                        } catch (e) {
+                          print('로그아웃 실패: $e');
+                          Navigator.pop(context); // 팝업 닫기
+                        }
                       },
                     ),
                     _buildDialogButton(
@@ -180,7 +152,6 @@ class SettingsPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 제목
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -216,9 +187,30 @@ class SettingsPage extends StatelessWidget {
                       context,
                       label: '탈퇴',
                       color: Colors.purple,
-                      onPressed: () {
-                        print('탈퇴 확인');
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        try {
+                          final user = FirebaseAuth.instance.currentUser;
+
+                          if (user != null) {
+                            // Firestore에서 사용자 데이터 삭제
+                            await FirebaseFirestore.instance
+                                .collection('user')
+                                .doc(user.uid)
+                                .delete();
+
+                            // FirebaseAuth에서 계정 삭제
+                            await user.delete();
+
+                            Navigator.pop(context); // 팝업 닫기
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginPage()), // 로그인 페이지로 이동
+                            );
+                          }
+                        } catch (e) {
+                          print('회원탈퇴 실패: $e');
+                          Navigator.pop(context); // 팝업 닫기
+                        }
                       },
                     ),
                     _buildDialogButton(

@@ -1,51 +1,180 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'setting.dart'; // 마이페이지 import
 
-class MemberInfoPage extends StatelessWidget {
+class MemberInfoPage extends StatefulWidget {
+  @override
+  _MemberInfoPageState createState() => _MemberInfoPageState();
+}
+
+class _MemberInfoPageState extends State<MemberInfoPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController(); // 현재 비밀번호 입력 추가
+  final TextEditingController _schoolController = TextEditingController();
+
+  bool isEmailAvailable = false; // 이메일 사용 가능 여부 플래그
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _currentPasswordController.dispose(); // 컨트롤러 해제
+    _schoolController.dispose();
+    super.dispose();
+  }
+
+  // 이메일 중복 확인
+  Future<void> _checkEmailAvailability() async {
+    try {
+      final email = _emailController.text.trim();
+
+      if (email.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('이메일을 입력해주세요.')),
+        );
+        return;
+      }
+
+      // Firestore에서 해당 이메일이 사용 중인지 확인
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('user')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        setState(() {
+          isEmailAvailable = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('이미 사용 중인 이메일입니다.')),
+        );
+      } else {
+        setState(() {
+          isEmailAvailable = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사용 가능한 이메일입니다.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('이메일 확인 중 오류가 발생했습니다: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<void> _updateUserInfo() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception("로그인된 사용자가 없습니다.");
+
+      final userDocRef = FirebaseFirestore.instance.collection('user').doc(user.uid);
+
+      Map<String, dynamic> updates = {};
+      bool passwordChanged = false; // 비밀번호 변경 여부 플래그
+
+      if (_emailController.text.isNotEmpty) {
+        if (!isEmailAvailable) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('이메일 중복 확인을 해주세요.')),
+          );
+          return;
+        }
+
+        updates['email'] = _emailController.text.trim();
+        await user.updateEmail(_emailController.text.trim()); // Firebase Authentication 이메일 변경
+      }
+
+      if (_passwordController.text.isNotEmpty) {
+        if (_currentPasswordController.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('현재 비밀번호를 입력해주세요.')),
+          );
+          return;
+        }
+
+        try {
+          // 재인증
+          final credential = EmailAuthProvider.credential(
+            email: user.email!,
+            password: _currentPasswordController.text.trim(),
+          );
+          await user.reauthenticateWithCredential(credential);
+
+          // 비밀번호 업데이트
+          await user.updatePassword(_passwordController.text.trim());
+          passwordChanged = true; // 비밀번호 변경 성공 플래그
+        } catch (e) {
+          if (e.toString().contains('wrong-password')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('현재 비밀번호가 올바르지 않습니다.')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('비밀번호 변경 실패: ${e.toString()}')),
+            );
+          }
+          return; // 비밀번호 변경 실패 시 아래 코드 실행하지 않음
+        }
+      }
+
+      if (_schoolController.text.isNotEmpty) {
+        updates['school'] = _schoolController.text.trim();
+      }
+
+      if (updates.isNotEmpty || passwordChanged) {
+        if (updates.isNotEmpty) {
+          await userDocRef.update(updates); // Firestore 업데이트
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('정보가 성공적으로 수정되었습니다.')),
+        );
+
+        // 마이페이지로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage()), // MyPageScreen으로 이동
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('변경할 내용을 입력해주세요.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: ${e.toString()}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        title: Image.asset(
+          'images/logo.png',
+          width: 150,
+        ),
         backgroundColor: Colors.white,
-        elevation: 0, // AppBar 그림자 제거
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black), // 뒤로가기 버튼
-          onPressed: () {
-            Navigator.pop(context); // 뒤로가기 동작
-          },
-        ),
-        toolbarHeight: 80, // AppBar 높이
         centerTitle: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/Image/Logo_L.png', // 로고 이미지 경로
-              height: 50, // 로고 크기
-            ),
-            SizedBox(width: 10),
-            Text(
-              '똑똑',
-              style: TextStyle(
-                color: Colors.purple,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+        elevation: 0,
+        toolbarHeight: 100,
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             children: [
-              SizedBox(height: 20), // 상단 여백
+              SizedBox(height: 20),
               Container(
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200], // 배경색
-                  borderRadius: BorderRadius.circular(10), // 모서리 둥글게
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
                   children: [
@@ -53,7 +182,7 @@ class MemberInfoPage extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.purple,
+                          backgroundColor: Color(0xFF7E3AB5),
                           child: Icon(
                             Icons.person,
                             size: 50,
@@ -61,82 +190,25 @@ class MemberInfoPage extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            print('사진 변경 클릭');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFE7E7E7), // 연한 회색
-                            side: BorderSide(
-                              color: Color(0xFFBABABA), // 테두리 색상
-                              width: 1.5,
-                            ),
-                            elevation: 0, // 그림자 제거
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          child: Text(
-                            '사진 변경하기',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF7E7E7E), // 텍스트 색상
-                            ),
-                          ),
-                        ),
                       ],
                     ),
-                    SizedBox(height: 20), // 간격 추가
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildTextField('닉네임 변경'),
-                        ),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            print('중복 확인 클릭');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFE7E7E7), // 연한 회색
-                            side: BorderSide(
-                              color: Color(0xFFBABABA), // 테두리 색상
-                              width: 1.5,
-                            ),
-                            elevation: 0, // 그림자 제거
-                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          child: Text(
-                            '중복확인',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF7E7E7E), // 텍스트 색상
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20), // 필드 간 간격
-                    _buildTextField('비밀번호 변경'),
                     SizedBox(height: 20),
-                    _buildTextField('학교 변경'),
+                    _buildTextField('현재 비밀번호 입력', _currentPasswordController, isPassword: true), // 현재 비밀번호 입력 추가
+                    SizedBox(height: 20),
+                    _buildTextField('새 비밀번호 입력', _passwordController, isPassword: true),
+                    SizedBox(height: 20),
+                    _buildTextField('학교 변경', _schoolController),
                     SizedBox(height: 30),
                     ElevatedButton(
-                      onPressed: () {
-                        print('수정하기 클릭');
-                      },
+                      onPressed: _updateUserInfo,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF7E3AB5), // 보라색
+                        backgroundColor: Color(0xFF7E3AB5),
                         elevation: 0,
                         padding: EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        minimumSize: Size(double.infinity, 50), // 버튼 넓이 설정
+                        minimumSize: Size(double.infinity, 50),
                       ),
                       child: Text(
                         '수정하기',
@@ -153,62 +225,13 @@ class MemberInfoPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1), // 그림자 효과
-              blurRadius: 10,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/Image/HomeIcon.png'),
-              ),
-              label: '홈',
-            ),
-            BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/Image/RankIcon.png'),
-              ),
-              label: '랭킹',
-            ),
-            BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/Image/MypageIcon.png'),
-              ),
-              label: '마이페이지',
-            ),
-          ],
-          currentIndex: 2,
-          selectedItemColor: Colors.purple,
-          unselectedItemColor: Colors.grey,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                Navigator.pop(context);
-                break;
-              case 1:
-                print('랭킹 탭 클릭');
-                break;
-              case 2:
-                print('마이페이지 탭 클릭');
-                break;
-            }
-          },
-        ),
-      ),
     );
   }
 
-  // 텍스트 필드 생성 함수
-  Widget _buildTextField(String hintText) {
+  Widget _buildTextField(String hintText, TextEditingController controller, {bool isPassword = false}) {
     return TextField(
+      controller: controller,
+      obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
