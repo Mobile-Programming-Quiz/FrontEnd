@@ -228,11 +228,6 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
 
-
-
-
-
-
   Widget _buildResultContent() {
     fetchUserName();
     int score = 0;
