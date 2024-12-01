@@ -15,6 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   List<Quiz> quizs = [];
+  String? todaySubject;
   bool _isLoading = true;
 
   @override
@@ -25,21 +26,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchQuizzes() async {
     try {
-      // 먼저 todaySubject 데이터를 가져오기
       final todaySubjectDoc = await FirebaseFirestore.instance
           .collection('vote')
           .doc('todaySubject')
           .get();
 
-      final todaySubject = todaySubjectDoc.data()?['todaySubject'] as String?;
+      todaySubject = todaySubjectDoc.data()?['todaySubject'] as String?;
+
+
+
       if (todaySubject == null) {
         throw Exception('오늘의 주제가 설정되지 않았습니다.');
       }
 
-      // todaySubject 기반으로 퀴즈 데이터를 가져오기
       final doc = await FirebaseFirestore.instance
           .collection('quizzes')
-          .doc(todaySubject) // 동적으로 todaySubject 사용
+          .doc(todaySubject) // todaySubject 동적 사용
           .get();
 
       final data = doc.data();
@@ -63,10 +65,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
   // 동적으로 스크린 리스트 반환
   List<Widget> getScreens() {
     return [
-      HomeScreenContent(quizs: quizs), // 동적 데이터 반영
+      HomeScreenContent(quizs: quizs, todaySubject: todaySubject), // todaySubject 전달
       RankingPageView(),
       MyPageScreen(),
     ];
@@ -115,7 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class HomeScreenContent extends StatelessWidget {
   final List<Quiz> quizs;
-  HomeScreenContent({required this.quizs});
+  final String? todaySubject;
+
+  HomeScreenContent({required this.quizs, required this.todaySubject});
 
   @override
   Widget build(BuildContext context) {
@@ -131,13 +136,13 @@ class HomeScreenContent extends StatelessWidget {
         children: <Widget>[
           Center(
             child: Image.asset(
-              'images/quiz.jpeg', // Display 'quiz.jpeg' in body content
+              _getImagePathForSubject(), // Display 'quiz.jpeg' in body content
               width: width * 0.8,
             ),
           ),
           Padding(padding: EdgeInsets.all(width * 0.024)),
           Text(
-            '"오늘의 주제"',
+            '"오늘의 퀴즈 : ${_getSubjectName()} "',
             style: TextStyle(fontSize: width * 0.065, fontWeight: FontWeight.bold),
           ),
           Padding(padding: EdgeInsets.all(width * 0.024)),
@@ -181,31 +186,31 @@ class HomeScreenContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 // 이전 문제 풀러 가기 버튼
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(width * 0.7, height * 0.04),
-                    backgroundColor: Colors.grey, // 버튼 색상 변경
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: Text(
-                    '안 푼 문제 풀러 가기',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: width * 0.06, // 글자 크기 약간 작게 설정
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SubjectScreen(
-                          remainingQuizzes: 5, // 예시로 남은 퀴즈 수 전달
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                // ElevatedButton(
+                //   style: ElevatedButton.styleFrom(
+                //     minimumSize: Size(width * 0.7, height * 0.04),
+                //     backgroundColor: Colors.grey, // 버튼 색상 변경
+                //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                //   ),
+                //   child: Text(
+                //     '안 푼 문제 풀러 가기',
+                //     style: TextStyle(
+                //       color: Colors.white,
+                //       fontSize: width * 0.06, // 글자 크기 약간 작게 설정
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => SubjectScreen(
+                //           remainingQuizzes: 5, // 예시로 남은 퀴즈 수 전달
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
               ],
             ),
           ),
@@ -213,6 +218,38 @@ class HomeScreenContent extends StatelessWidget {
       ),
     );
   }
+  String _getSubjectName() {
+    // 특정 조건에 따라 todaySubject 값 수정
+    if (todaySubject == "character") {
+      return "인물";
+    }
+    else if (todaySubject == "history") {
+      return "역사";
+    }
+    else if (todaySubject == "math") {
+      return "수학";
+    }
+    else if (todaySubject == "science") {
+      return "과학";
+    }
+    else return "";
+  }
+
+  // todaySubject 값에 따라 이미지 경로를 반환하는 함수 추가
+  String _getImagePathForSubject() {
+    if (todaySubject == "character") {
+      return 'images/character.png';
+    } else if (todaySubject == "history") {
+      return 'images/history.png';
+    } else if (todaySubject == "math") {
+      return 'images/math.png';
+    } else if (todaySubject == "science") {
+      return 'images/science.png';
+    }
+    // 기본 로고 이미지 반환
+    return 'images/quiz.jpeg';
+  }
+
   Widget _buildStep(double width, String title) {
     return Container(
       padding: EdgeInsets.fromLTRB(70, width * 0.024, width * 0.048, width * 0.024), // Left padding of 30
@@ -227,3 +264,5 @@ class HomeScreenContent extends StatelessWidget {
     );
   }
 }
+
+
