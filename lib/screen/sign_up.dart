@@ -774,6 +774,26 @@ class SignupPage extends StatelessWidget {
     }
   }
 
+  // 이메일 인증 확인 함수
+  Future<void> checkEmailVerified(BuildContext context) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      await user.reload(); // 사용자 정보를 새로고침
+      isEmailVerified = user.emailVerified; // 이메일 인증 상태 업데이트
+
+      if (isEmailVerified) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이메일 인증이 완료되었습니다.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이메일 인증이 아직 완료되지 않았습니다.')),
+        );
+      }
+    }
+  }
+
   Future<void> saveUserData(BuildContext context) async {
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -852,20 +872,67 @@ class SignupPage extends StatelessWidget {
                 obscureText: true,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => createAccountAndSendVerification(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF45136C),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                child: const Text(
-                  '계정 생성 및 인증 이메일 발송',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
+              // ElevatedButton(
+              //   onPressed: () => createAccountAndSendVerification(context),
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: const Color(0xFF45136C),
+              //     padding: const EdgeInsets.symmetric(vertical: 15),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(15),
+              //     ),
+              //   ),
+              //   child: const Text(
+              //     '계정 생성 및 인증 이메일 발송',
+              //     style: TextStyle(color: Colors.white, fontSize: 16),
+              //   ),
+              // ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => createAccountAndSendVerification(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF45136C),
+                                padding: EdgeInsets.symmetric(vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              child: const Text(
+                                '인증 이메일 발송',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10), // 버튼 간 간격 추가
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async => await checkEmailVerified(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF45136C),
+                                padding: EdgeInsets.symmetric(vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              child: const Text(
+                                '인증 확인',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
               const SizedBox(height: 20),
               CustomTextField(
                 label: '이름',
@@ -894,12 +961,12 @@ class SignupPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => saveUserData(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF45136C),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    backgroundColor: const Color(0xFF45136C),
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
-                ),
                 child: const Text(
                   '회원가입',
                   style: TextStyle(color: Colors.white, fontSize: 16),
