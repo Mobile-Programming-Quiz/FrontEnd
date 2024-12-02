@@ -472,36 +472,50 @@ class HomeScreenContent extends StatelessWidget {
               Padding(padding: EdgeInsets.all(width * 0.024)),
               Container(
                 padding: EdgeInsets.only(bottom: width * 0.036),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(width * 0.7, height * 0.08),
-                    backgroundColor: isStartButtonEnabled ? Colors.deepPurple : Colors.grey,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  ),
-                  child: Text(
-                    'START',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: width * 0.08,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onPressed: isStartButtonEnabled
-                      ? () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => WillPopScope(
-                          onWillPop: () async => false,
-                          child: QuizScreen(
-                            quizs: quizs,
-                          ),
-                        ),
-                        fullscreenDialog: true,
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(width * 0.7, height * 0.08),
+                        backgroundColor: isStartButtonEnabled ? Colors.deepPurple : Colors.grey,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       ),
-                    );
-                  }
-                      : null,
+                      child: Text(
+                        'START',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: width * 0.08,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: isStartButtonEnabled
+                          ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WillPopScope(
+                              onWillPop: () async => false,
+                              child: QuizScreen(
+                                quizs: quizs,
+                              ),
+                            ),
+                            fullscreenDialog: true,
+                          ),
+                        );
+                      }
+                          : null,
+                    ),
+                    SizedBox(height: 10), // 버튼과 문구 사이 여백
+                    if (!isStartButtonEnabled)
+                      Text(
+                        '오늘의 퀴즈를 이미 푸셨습니다.',
+                        style: TextStyle(
+                          fontSize: width * 0.045,
+                          color: Colors.red, // 문구 색상
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],
