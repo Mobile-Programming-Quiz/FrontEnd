@@ -132,14 +132,14 @@ class _PasswordSearchPageState extends State<PasswordSearchPage> {
             ElevatedButton(
               onPressed: _password,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF45136C), // 회원가입 버튼과 동일한 배경색
+                backgroundColor: Colors.deepPurple, // 회원가입 버튼과 동일한 배경색
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15), // 동일한 패딩 설정
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15), // 동일한 모서리 반경
                 ),
               ),
               child: const Text(
-                '재설정한 비밀번호로 로그인하기',
+                '로그인하러 가기',
                 style: TextStyle(
                   color: Color(0xFFFFFFFF), // 텍스트 색상 (흰색)
                   fontWeight: FontWeight.bold, // 텍스트 굵기
