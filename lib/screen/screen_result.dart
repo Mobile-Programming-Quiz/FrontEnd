@@ -186,20 +186,20 @@ class _ResultScreenState extends State<ResultScreen> {
         final int currentMaxScore = currentData['maxScore']?.toInt() ?? 0;
 
         // 현재 점수 가져오기
-        int scienceScore = currentData['scienceScore']?.toInt() ?? 0;
-        int historyScore = currentData['historyScore']?.toInt() ?? 0;
-        int mathScore = currentData['mathScore']?.toInt() ?? 0;
-        int characterScore = currentData['characterScore']?.toInt() ?? 0;
+        double scienceScore = currentData['scienceScore']?.toDouble() ?? 0;
+        double historyScore = currentData['historyScore']?.toDouble() ?? 0;
+        double mathScore = currentData['mathScore']?.toDouble() ?? 0;
+        double characterScore = currentData['characterScore']?.toDouble() ?? 0;
 
         // todaySubject에 따라 점수 추가
         if (todaySubject == 'science') {
-          scienceScore += 5;
+          scienceScore += maxScore/2;
         } else if (todaySubject == 'history') {
-          historyScore += 5;
+          historyScore += maxScore/2;
         } else if (todaySubject == 'math') {
-          mathScore += 5;
+          mathScore += maxScore/2;
         } else if (todaySubject == 'character') {
-          characterScore += 5;
+          characterScore += maxScore/2;
         }
 
         // 총 점수 계산
