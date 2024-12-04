@@ -107,6 +107,8 @@ Future<void> resetScoresIfNeeded() async {
     if (metadataDoc.exists && metadataDoc.data() != null) {
       final lastResetDate = metadataDoc.data()!['lastResetDate'] ?? '';
       if (lastResetDate == today) {
+        print("마지막 업데이트 : "+lastResetDate+"\n");
+        print("오늘 날짜 : "+today+"\n");
         print('오늘은 이미 초기화되었습니다.');
         return; // 이미 초기화되었으므로 종료
       }
