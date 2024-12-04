@@ -25,6 +25,7 @@ class _QuizScreenState extends State<QuizScreen> {
   bool _isAnimating = false;
   String? _currentAnimation;
   bool _isHintVisible = false;
+  int _hintCount = 3; // 힌트 제한 횟수
 
   @override
   void initState() {
@@ -200,14 +201,19 @@ class _QuizScreenState extends State<QuizScreen> {
                 IconButton(
                   icon: Icon(
                     Icons.lightbulb_outline,
-                    color: Colors.deepPurple,
+                    color: _hintCount > 0 ? Colors.deepPurple : Colors.grey,
                     size: 32,
                   ),
-                  onPressed: () {
+                  onPressed: _hintCount > 0
+                      ? () {
                     setState(() {
                       _isHintVisible = !_isHintVisible;
+                      if (_isHintVisible) {
+                        _hintCount--; // 힌트를 볼 때마다 카운트 감소
+                      }
                     });
-                  },
+                  }
+                      : null, // 힌트를 다 쓰면 버튼 비활성화
                 ),
                 if (_isHintVisible)
                   Container(
@@ -228,6 +234,14 @@ class _QuizScreenState extends State<QuizScreen> {
                   ),
               ],
             ),
+            if (_hintCount <= 0)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '힌트를 모두 사용했습니다!',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ),
             SizedBox(height: 10),
           ],
         ),
