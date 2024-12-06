@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quiz_app/screen/login.dart'; // 로그인 페이지 import
 import 'member_info.dart'; // 회원정보 페이지 import
+import 'package:quiz_app/screen/screen_faq.dart'; // FAQ 페이지 import
+
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -42,7 +44,10 @@ class SettingsPage extends StatelessWidget {
                   _showWithdrawalDialog(context); // 회원탈퇴 팝업 표시
                 }),
                 _buildMenuItem(context, 'FAQ_자주묻는 질문', () {
-                  print('FAQ 눌림');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FaqPage()), // screen_faq.dart 파일로 이동
+                  );
                 }),
                 _buildMenuItem(context, '테마 변경', () {
                   print('테마 변경 눌림');
