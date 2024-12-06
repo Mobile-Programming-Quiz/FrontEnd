@@ -39,7 +39,9 @@
 <div markdown="1">
  <img width="280" alt="퀴즈 화면" src="https://github.com/user-attachments/assets/aa5496a5-3ecf-48fd-a1f3-6588dd54d8d3">
  <img width="280" alt="퀴즈 힌트화면" src="https://github.com/user-attachments/assets/d0e6df50-86de-45aa-9c19-87beec7a8145">
-
+ <br/>
+ <img width="280" alt="퀴즈 맞았을때" src="https://github.com/user-attachments/assets/88a1bd00-6a03-4143-9ccc-640ee3465c2c">
+ <img width="280" alt="퀴즈 틀렸을때" src="https://github.com/user-attachments/assets/42e39e67-e0b8-41b7-a3c1-10b9383e9a84">
 
 </div>
 </details>
