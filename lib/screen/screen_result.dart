@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/model/model_quiz.dart';
 import 'package:quiz_app/screen/screen_home.dart';
-import 'package:quiz_app/screen/screen_ranking.dart';
 import 'package:quiz_app/screen/screen_my_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
