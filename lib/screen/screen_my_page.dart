@@ -148,7 +148,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ),
           SizedBox(height: 5),
           Text(
-            '퀴즈 정답률 - ${(_correctRate * 100).toStringAsFixed(1)}%', // Firestore에서 계산한 정답률
+            '퀴즈 정답률 : ${(_correctRate * 100).toStringAsFixed(1)}%', // Firestore에서 계산한 정답률
             style: TextStyle(
               fontSize: 14,
               color: Colors.purple,
