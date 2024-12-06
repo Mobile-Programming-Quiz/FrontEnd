@@ -466,8 +466,8 @@ class HomeScreenContent extends StatelessWidget {
                 style: TextStyle(fontSize: width * 0.065, fontWeight: FontWeight.bold),
               ),
               Padding(padding: EdgeInsets.all(width * 0.024)),
-              _buildStep(width, '1. 랜덤으로 나오는 퀴즈 3개를 풀어보세요.'),
-              _buildStep(width, '2. 문제를 잘 읽고 정답을 고른 뒤\n다음 문제 버튼을 눌러주세요.'),
+              _buildStep(width, '1. 해당 주제에 대한 퀴즈 10개를 풀어보세요.'),
+              _buildStep(width, '2. 문제를 잘 읽고 정답을 고른 뒤\n다음 문제 버튼을 눌러주세요.\n힌트는 최대 3개까지만 볼 수 있습니다.'),
               _buildStep(width, '3. 만점을 향해 도전해보세요!'),
               Padding(padding: EdgeInsets.all(width * 0.024)),
               Container(
