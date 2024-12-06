@@ -323,20 +323,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchQuizzes() async {
     try {
+      // 'vote' 컬렉션에서 'todaySubject' 문서 가져오기
       final todaySubjectDoc = await FirebaseFirestore.instance
           .collection('vote')
           .doc('todaySubject')
           .get();
 
       todaySubject = todaySubjectDoc.data()?['todaySubject'] as String?;
+      int? subjectSet = todaySubjectDoc.data()?['${todaySubject}Set'] as int?;
 
-      if (todaySubject == null) {
-        throw Exception('오늘의 주제가 설정되지 않았습니다.');
+      if (todaySubject == null || subjectSet == null) {
+        throw Exception('오늘의 주제 또는 주제 설정 값이 없습니다.');
       }
 
+      // 해당 주제에 대한 퀴즈 리스트 가져오기
       final doc = await FirebaseFirestore.instance
           .collection('quizzes')
-          .doc(todaySubject) // todaySubject 동적 사용
+          .doc(todaySubject)
           .get();
 
       final data = doc.data();
@@ -344,7 +347,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (quizList != null) {
         setState(() {
-          quizs = quizList.map((quiz) => Quiz.fromMap(quiz)).toList();
+          // used 필드와 subjectSet 값이 동일한 문제만 필터링
+          quizs = quizList
+              .where((quiz) => quiz['used'] == subjectSet) // 필터 조건
+              .map((quiz) => Quiz.fromMap(quiz))
+              .toList();
           _isLoading = false;
         });
       } else {
@@ -359,6 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+
 
   // 동적으로 스크린 리스트 반환
   List<Widget> getScreens() {

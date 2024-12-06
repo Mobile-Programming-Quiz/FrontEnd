@@ -103,26 +103,21 @@ Future<void> resetScoresIfNeeded() async {
     // metadata/dailyReset 문서 가져오기
     final metadataDoc = await metadataDocRef.get();
 
-    // 초기화 필요 여부 확인
     if (metadataDoc.exists && metadataDoc.data() != null) {
       final lastResetDate = metadataDoc.data()!['lastResetDate'] ?? '';
       if (lastResetDate == today) {
-        print("마지막 업데이트 : "+lastResetDate+"\n");
-        print("오늘 날짜 : "+today+"\n");
-        print('오늘은 이미 초기화되었습니다.');
+        print("오늘은 이미 초기화되었습니다.");
         return; // 이미 초기화되었으므로 종료
       }
     }
 
-    // 초기화 작업 실행
     print('모든 유저의 score를 초기화합니다.');
     final userCollection = FirebaseFirestore.instance.collection('user');
     final batch = FirebaseFirestore.instance.batch();
 
-    // 모든 유저 문서 가져오기
     final querySnapshot = await userCollection.get();
     for (final doc in querySnapshot.docs) {
-      batch.update(doc.reference, {'score': 0}); // 각 유저의 score를 0으로 초기화
+      batch.update(doc.reference, {'score': 0}); // 모든 유저의 score 초기화
     }
 
     // vote 컬렉션에서 가장 높은 voteNumber 찾기
@@ -139,14 +134,30 @@ Future<void> resetScoresIfNeeded() async {
       }
     }
 
-    // todaySubject 문서 업데이트
+    // todaySubject 업데이트
     final todaySubjectDoc = voteCollection.doc('todaySubject');
-    await todaySubjectDoc.set({'todaySubject': highestVoteDocument});
+    await todaySubjectDoc.update({'todaySubject': highestVoteDocument});
     print('오늘의 주제는 "$highestVoteDocument"입니다.');
 
-    // 모든 voteNumber 필드 초기화
+    // 모든 voteNumber 초기화
     for (final doc in voteDocs.docs) {
       batch.update(doc.reference, {'voteNumber': 0});
+    }
+
+    // 현재 있는 필드 이름의 값 변경
+    if (highestVoteDocument.isNotEmpty) {
+      final subjectField = '${highestVoteDocument}Set'; // 필드명 결정
+      final todaySubjectData = await todaySubjectDoc.get();
+
+      if (todaySubjectData.exists && todaySubjectData.data()?[subjectField] != null) {
+        final currentSetValue = todaySubjectData.data()![subjectField] ?? 0;
+        final updatedSetValue = currentSetValue == 0 ? 1 : 0;
+
+        await todaySubjectDoc.update({subjectField: updatedSetValue});
+        print('$subjectField 값이 $currentSetValue에서 $updatedSetValue로 변경되었습니다.');
+      } else {
+        print('$subjectField 필드를 찾을 수 없습니다.');
+      }
     }
 
     // Firestore에 일괄 업데이트 적용
